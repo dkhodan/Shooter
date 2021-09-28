@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Animation/AnimInstance.h"
 
 
 AShooterCharacter::AShooterCharacter() : BaseTurnRate(45.f), BaseLookUpRate(45.f)
@@ -104,7 +105,14 @@ void AShooterCharacter::FireWeapon()
 		}
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Fire Weapon!"));
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	// Get and run hip fire montage that was set from the blueprint
+	if (AnimInstance && HipFireMontage)
+	{
+		AnimInstance->Montage_Play(HipFireMontage);
+		AnimInstance->Montage_JumpToSection(FName("StartFire"));
+	}
 }
 
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
