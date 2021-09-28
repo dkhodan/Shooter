@@ -50,6 +50,13 @@ private:
 	class UParticleSystem* MuzzleFlash;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* ImpactParticle;
+
+	// Smoke trail for bullets
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* BeamParticle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	class UAnimMontage* HipFireMontage;
 
 public:
