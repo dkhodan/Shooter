@@ -1,6 +1,7 @@
 #include "ShooterAnimInstance.h"
 #include "ShooterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UShooterAnimInstance::NativeInitializeAnimation()
 {
@@ -35,5 +36,14 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		{
 			bIsAccelerating = false;
 		}
+
+		// TODO: Need to review how actually works here math behind. 
+		// How calculations between aim vector and movement vector calculated and why value bounded into -180 to 180
+		FRotator AimRotation = ShooterCharacter->GetBaseAimRotation();
+		FRotator MovementRotator = UKismetMathLibrary::MakeRotFromX(ShooterCharacter->GetVelocity());
+
+		MovementOffset = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotator, AimRotation).Yaw;
+		
+		if(ShooterCharacter->GetVelocity().Size() > 0.f) LastMovementOffsetYaw = MovementOffset;
 	}
 }
