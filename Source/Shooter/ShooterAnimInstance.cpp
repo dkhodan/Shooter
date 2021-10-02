@@ -45,5 +45,9 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		MovementOffset = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotator, AimRotation).Yaw;
 		
 		if(ShooterCharacter->GetVelocity().Size() > 0.f) LastMovementOffsetYaw = MovementOffset;
+
+		bIsAiming = ShooterCharacter->GetIsAiming();
+
+		bIsJumping = ShooterCharacter->GetMovementComponent()->IsFalling();
 	}
 }

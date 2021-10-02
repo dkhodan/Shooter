@@ -18,7 +18,17 @@ AShooterCharacter::AShooterCharacter() :
 	CameraDefaultFOV(0),  // set in the begin play
 	CameraAimingFOV(40.f), // currently default value for ADS FOV
 	CameraCurrentFOV(0),
-	ZoomInterpSpeed(0)
+	ZoomInterpSpeed(0),
+	HipTurnRate(90.f),
+	HipLookUpRate(90.f),
+	AimingTurnRate(20.f),
+	AimingLookUpRate(20.f),
+
+	// Mouse sensivity rate
+	MouseHipTurnRate(1.f),
+	MouseHipLookUpRate(1.f),
+	MouseAimingTurnRate(0.2f),
+	MouseAimingLookUpRate(0.2f)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -70,6 +80,7 @@ void AShooterCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UpdateCameraFOV(DeltaTime);
+	SetSensitivity();
 }
 
 void AShooterCharacter::MoveForward(float Value)
@@ -225,6 +236,49 @@ void AShooterCharacter::UpdateCameraFOV(float DeltaTime)
 	}
 }
 
+void AShooterCharacter::SetSensitivity()
+{
+	if (bIsAiming)
+	{
+		BaseTurnRate = AimingTurnRate;
+		BaseLookUpRate = AimingLookUpRate;
+	}
+	else
+	{
+		BaseTurnRate = HipTurnRate;
+		BaseLookUpRate = HipLookUpRate;
+	}
+}
+
+void AShooterCharacter::Turn(float Value)
+{
+	float TurnScaleFactor;
+	if (bIsAiming)
+	{
+		TurnScaleFactor = MouseAimingTurnRate;
+	}
+	else
+	{
+		TurnScaleFactor = MouseHipTurnRate;
+	}
+	APawn::AddControllerYawInput(Value* TurnScaleFactor);
+}
+
+void AShooterCharacter::LookUp(float Value)
+{
+	float LookUpScaleRate;
+
+	if (bIsAiming)
+	{
+		LookUpScaleRate = MouseAimingLookUpRate;
+	}
+	else
+	{
+		LookUpScaleRate = MouseHipLookUpRate;
+	}
+	APawn::AddControllerPitchInput(Value * LookUpScaleRate);
+}
+
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -233,8 +287,8 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("MoveRight", this, &AShooterCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("TurnRate", this, &AShooterCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AShooterCharacter::LookUpAtRate);
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("Turn", this, &AShooterCharacter::Turn);
+	PlayerInputComponent->BindAxis("LookUp", this, &AShooterCharacter::LookUp);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
