@@ -250,6 +250,23 @@ void AShooterCharacter::SetSensitivity()
 	}
 }
 
+//void AShooterCharacter::Jump()
+//{
+//	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+//
+//	UE_LOG(LogTemp, Warning, TEXT("We are in Jump()"));
+//
+//	// Get and run hip fire montage that was set from the blueprint
+//	if (AnimInstance && JumpMontage)
+//	{
+//		UE_LOG(LogTemp, Warning, TEXT("Statement is true"));
+//		AnimInstance->Montage_Play(JumpMontage);
+//		AnimInstance->Montage_JumpToSection(FName("JumpStart"));
+//	}
+//
+//	//ACharacter::Jump();
+//}
+
 void AShooterCharacter::Turn(float Value)
 {
 	float TurnScaleFactor;
