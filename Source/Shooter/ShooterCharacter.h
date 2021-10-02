@@ -33,6 +33,13 @@ protected:
 	// look up rate for a mouse
 	void LookUp(float Value);
 
+	void CalculateCrosshairSpread(float DeltaTime);
+
+	UFUNCTION()
+	void FinishCrosshairBulletFire();
+
+	void StartCrosshairBulletFire();
+
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -107,6 +114,28 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	float ZoomInterpSpeed;
 
+	/* Crosshair section properties */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Crosshair", meta = (AllowPrivateAccess = "true"))
+	float CrosshairSpreadMultiplier;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Crosshair", meta = (AllowPrivateAccess = "true"))
+	float CrosshairVelocityFactor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Crosshair", meta = (AllowPrivateAccess = "true"))
+	float CrosshairInAirFactor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Crosshair", meta = (AllowPrivateAccess = "true"))
+	float CrosshairAimFactor;
+
+	float ShootTimeDuration;
+
+	bool bIsFire;
+
+	FTimerHandle CrosshairShootTimer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Crosshair", meta = (AllowPrivateAccess = "true"))
+	float CrosshairShootingFactor;
+
 	float CameraDefaultFOV;
 	float CameraAimingFOV;
 	float CameraCurrentFOV;
@@ -117,4 +146,7 @@ public:
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	FORCEINLINE bool GetIsAiming() const { return bIsAiming; }
+
+	UFUNCTION(BlueprintCallable)
+	float GetCrosshairSpreadMultiplier() const;
 };
