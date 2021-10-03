@@ -53,6 +53,7 @@ Plugins/*/Binaries/*
 Build/*
 
 Content/ParagonLtBelica/*
+Content/SpaceshipInterior/*
 
 # Whitelist PakBlacklist-<BuildConfiguration>.txt files
 !Build/*/

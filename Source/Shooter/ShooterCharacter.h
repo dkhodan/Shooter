@@ -25,7 +25,12 @@ protected:
 	void AimingButtonReleased();
 	void UpdateCameraFOV(float DeltaTime);
 	void SetSensitivity();
+	void FireButtonPressed();
+	void FireButtonReleased();
+	void StartFireTimer();
 
+	UFUNCTION()
+	void AutoFireReset();
 
 	// turn rate for a mouse
 	void Turn(float Value);
@@ -139,6 +144,16 @@ private:
 	float CameraDefaultFOV;
 	float CameraAimingFOV;
 	float CameraCurrentFOV;
+
+	bool bIsFireButtonPressed;
+
+	bool bShouldFire;
+
+	// Rate of automatic gunfire. How much seconds between bullets
+	float AutomaticFireRate;
+
+	// Timer between gunshots
+	FTimerHandle AutoFireTimer;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
