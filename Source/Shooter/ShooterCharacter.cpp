@@ -9,6 +9,8 @@
 #include "DrawDebugHelpers.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Math/UnrealMathUtility.h"
+#include "Components/WidgetComponent.h"
+#include "ItemActor.h"
 
 
 AShooterCharacter::AShooterCharacter() :
@@ -78,8 +80,6 @@ void AShooterCharacter::BeginPlay()
 	}
 }
 
-float time_handler = 0;
-
 void AShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -87,6 +87,17 @@ void AShooterCharacter::Tick(float DeltaTime)
 	UpdateCameraFOV(DeltaTime);
 	SetSensitivity();
 	CalculateCrosshairSpread(DeltaTime);
+
+	FHitResult ItemTraceResult;
+	if (TraceUnderCrosshairs(ItemTraceResult))
+	{
+		AItemActor* HitItem = Cast<AItemActor>(ItemTraceResult.Actor);
+		if (HitItem)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("I hit the item and item is not null!"));
+			HitItem->GetPickUpWidget()->SetVisibility(true);
+		}
+	}
 }
 
 void AShooterCharacter::MoveForward(float Value)
@@ -277,6 +288,39 @@ void AShooterCharacter::StartFireTimer()
 		bShouldFire = false;
 		GetWorldTimerManager().SetTimer(AutoFireTimer, this, &AShooterCharacter::AutoFireReset, AutomaticFireRate);
 	}
+}
+
+bool AShooterCharacter::TraceUnderCrosshairs(FHitResult& OutHit)
+{
+	FVector2D ViewportSize;
+	if (GEngine && GEngine->GameViewport)
+	{
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+	}
+
+	// Get screenspace location of crosshairs
+	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+
+	FVector CrosshaidWorldPosition;
+	FVector CrosshairWorldDirection;
+
+	// Get world position and direction of crosshairs
+	bool bScreen2World = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0),
+		CrosshairLocation,
+		CrosshaidWorldPosition,
+		CrosshairWorldDirection);
+
+	if (bScreen2World)
+	{
+		const FVector Start = CrosshaidWorldPosition;
+		const FVector End = CrosshaidWorldPosition + CrosshairWorldDirection * 500.f;
+
+		GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_Visibility);
+
+		if (OutHit.bBlockingHit) return true;
+	}
+
+	return false;
 }
 
 void AShooterCharacter::AutoFireReset()

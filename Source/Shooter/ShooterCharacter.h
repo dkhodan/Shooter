@@ -28,6 +28,7 @@ protected:
 	void FireButtonPressed();
 	void FireButtonReleased();
 	void StartFireTimer();
+	bool TraceUnderCrosshairs(FHitResult& OutHit);
 
 	UFUNCTION()
 	void AutoFireReset();
