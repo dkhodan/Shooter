@@ -35,7 +35,8 @@ AShooterCharacter::AShooterCharacter() :
 	bIsFire(false),
 	AutomaticFireRate(0.1f),
 	bShouldFire(true),
-	bIsFireButtonPressed(false)
+	bIsFireButtonPressed(false),
+	bShouldTraceForItems(false)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -87,18 +88,7 @@ void AShooterCharacter::Tick(float DeltaTime)
 	UpdateCameraFOV(DeltaTime);
 	SetSensitivity();
 	CalculateCrosshairSpread(DeltaTime);
-
-	FHitResult ItemTraceResult;
-	FVector Empty;
-	if (TraceUnderCrosshairs(ItemTraceResult, Empty))
-	{
-		AItemActor* HitItem = Cast<AItemActor>(ItemTraceResult.Actor);
-		if (HitItem)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("I hit the item and item is not null!"));
-			HitItem->GetPickUpWidget()->SetVisibility(true);
-		}
-	}
+	TraceForItems();
 }
 
 void AShooterCharacter::MoveForward(float Value)
@@ -412,6 +402,23 @@ void AShooterCharacter::StartCrosshairBulletFire()
 	GetWorldTimerManager().SetTimer(CrosshairShootTimer, this, &AShooterCharacter::FinishCrosshairBulletFire, ShootTimeDuration);
 }
 
+void AShooterCharacter::TraceForItems()
+{
+	if (bShouldTraceForItems)
+	{
+		FHitResult ItemTraceResult;
+		FVector Empty;
+		if (TraceUnderCrosshairs(ItemTraceResult, Empty))
+		{
+			AItemActor* HitItem = Cast<AItemActor>(ItemTraceResult.Actor);
+			if (HitItem)
+			{
+				HitItem->GetPickUpWidget()->SetVisibility(true);
+			}
+		}
+	}
+}
+
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -434,5 +441,19 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 float AShooterCharacter::GetCrosshairSpreadMultiplier() const
 {
 	return CrosshairSpreadMultiplier;
+}
+
+void AShooterCharacter::IncrementOverlappedItemCounter(int8 Amount)
+{
+	if (OverlappedItemCounter + Amount <= 0)
+	{
+		OverlappedItemCounter = 0;
+		bShouldTraceForItems = false;
+	}
+	else
+	{
+		OverlappedItemCounter += Amount;
+		bShouldTraceForItems = true;
+	}
 }
 

@@ -46,6 +46,8 @@ protected:
 
 	void StartCrosshairBulletFire();
 
+	void TraceForItems();
+
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -156,6 +158,12 @@ private:
 	// Timer between gunshots
 	FTimerHandle AutoFireTimer;
 
+	// True if we should trace every frame for items
+	bool bShouldTraceForItems;
+
+	// Number of overlapped AItems
+	int8 OverlappedItemCounter;
+
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
@@ -165,4 +173,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	float GetCrosshairSpreadMultiplier() const;
+
+	FORCEINLINE int8 GetOverlappedItemCounter() const { return OverlappedItemCounter; }
+
+	void IncrementOverlappedItemCounter(int8 Amount);
 };
