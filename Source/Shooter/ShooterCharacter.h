@@ -164,6 +164,9 @@ private:
 	// Number of overlapped AItems
 	int8 OverlappedItemCounter;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Crosshair", meta = (AllowPrivateAccess = "true"))
+	class AItemActor* LastOverlappedItem;
+
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 

@@ -415,6 +415,23 @@ void AShooterCharacter::TraceForItems()
 			{
 				HitItem->GetPickUpWidget()->SetVisibility(true);
 			}
+
+			if (LastOverlappedItem)
+			{
+				if (HitItem != LastOverlappedItem)
+				{
+					LastOverlappedItem->GetPickUpWidget()->SetVisibility(false);
+				}
+			}
+
+			LastOverlappedItem = HitItem;
+		}
+	}
+	else if (LastOverlappedItem)
+	{
+		if (LastOverlappedItem)
+		{
+			LastOverlappedItem->GetPickUpWidget()->SetVisibility(false);
 		}
 	}
 }

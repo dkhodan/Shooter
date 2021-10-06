@@ -4,6 +4,7 @@
 #include "Components/WidgetComponent.h"
 #include "Components/SphereComponent.h"
 #include "ShooterCharacter.h"
+#include "Components/WidgetComponent.h"
 
 AItemActor::AItemActor()
 {
