@@ -6,7 +6,9 @@
 #include "ShooterCharacter.h"
 #include "Components/WidgetComponent.h"
 
-AItemActor::AItemActor()
+AItemActor::AItemActor() :
+	ItemName(FString("Default Name")),
+	BulletsAmount(0)
 {
 	PrimaryActorTick.bCanEverTick = true;
 

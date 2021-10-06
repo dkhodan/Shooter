@@ -40,6 +40,23 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* AreaSphere;
 
+
+	/*
+		To show this actually actually in-game first need to set blueprints PickUpWidget_BP and BaseWeapon_BP where this name will be displayed.
+		First we need to create a reference to C++ class inside blueprint itself and initialize this reference with a proper value. 
+		Example in the BP: BaseWeapon_BP (get a reference c++ class and use Cast To Widget_BP
+		After that inside Widget_BP we can get this reference and simply fetch a value of the string that we can set anywhere.
+		But default value setted inside the constructor.
+		Example: PickUpWidget_BP
+
+		Note: don't forget to press "Bind" button in the Widget where we want to make a binding on the proper field with a proper type
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	FString ItemName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	int32 BulletsAmount;
+
 public:
 
 	FORCEINLINE UWidgetComponent* GetPickUpWidget() const { return PickUpWidget; }
