@@ -89,7 +89,8 @@ void AShooterCharacter::Tick(float DeltaTime)
 	CalculateCrosshairSpread(DeltaTime);
 
 	FHitResult ItemTraceResult;
-	if (TraceUnderCrosshairs(ItemTraceResult))
+	FVector Empty;
+	if (TraceUnderCrosshairs(ItemTraceResult, Empty))
 	{
 		AItemActor* HitItem = Cast<AItemActor>(ItemTraceResult.Actor);
 		if (HitItem)
@@ -185,49 +186,27 @@ void AShooterCharacter::FireWeapon()
 
 bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation)
 {
-	// Get current size of the viewport
-	FVector2D ViewportSize;
-	if (GEngine && GEngine->GameViewport)
+	FHitResult CrosshairHitResult;
+	bool bCrosshairHit = TraceUnderCrosshairs(CrosshairHitResult, OutBeamLocation);
+
+	if (bCrosshairHit)
 	{
-		GEngine->GameViewport->GetViewportSize(ViewportSize);
+		OutBeamLocation = CrosshairHitResult.Location;
 	}
 
-	// Get screenspace location of crosshairs
-	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+	FHitResult BarrelTraceHit;
+	const FVector Start = MuzzleSocketLocation;
+	const FVector StartToEnd = OutBeamLocation - MuzzleSocketLocation;
+	const FVector End = MuzzleSocketLocation + StartToEnd * 1.25f;
 
-	FVector CrosshaidWorldPosition;
-	FVector CrosshairWorldDirection;
+	// Trace outward from crosshair world location
+	GetWorld()->LineTraceSingleByChannel(BarrelTraceHit, Start, End, ECollisionChannel::ECC_Visibility);
 
-	// Get world position and direction of crosshairs
-	bool bScreen2World = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0),
-		CrosshairLocation,
-		CrosshaidWorldPosition,
-		CrosshairWorldDirection);
-
-
-	if (bScreen2World)
+	if (BarrelTraceHit.bBlockingHit)
 	{
-		FHitResult ScreenTraceHit;
-		FHitResult BarrelTraceHit;
-
-		const FVector Start = CrosshaidWorldPosition;
-		const FVector End = CrosshaidWorldPosition + CrosshairWorldDirection * 50'000.f;
-
-		// Set beam end point to line trace end point
-		OutBeamLocation = End;
-
-		// Trace outward from crosshair world location
-		GetWorld()->LineTraceSingleByChannel(ScreenTraceHit, Start, End, ECollisionChannel::ECC_Visibility);
-		GetWorld()->LineTraceSingleByChannel(BarrelTraceHit, MuzzleSocketLocation, End, ECollisionChannel::ECC_Visibility);
-
-		if (BarrelTraceHit.bBlockingHit)
-		{
-			OutBeamLocation = BarrelTraceHit.Location;
-		}
-
+		OutBeamLocation = BarrelTraceHit.Location;
 		return true;
 	}
-
 	return false;
 }
 
@@ -290,7 +269,7 @@ void AShooterCharacter::StartFireTimer()
 	}
 }
 
-bool AShooterCharacter::TraceUnderCrosshairs(FHitResult& OutHit)
+bool AShooterCharacter::TraceUnderCrosshairs(FHitResult& OutHit, FVector& OutHitLocation)
 {
 	FVector2D ViewportSize;
 	if (GEngine && GEngine->GameViewport)
@@ -313,13 +292,17 @@ bool AShooterCharacter::TraceUnderCrosshairs(FHitResult& OutHit)
 	if (bScreen2World)
 	{
 		const FVector Start = CrosshaidWorldPosition;
-		const FVector End = CrosshaidWorldPosition + CrosshairWorldDirection * 500.f;
+		const FVector End = CrosshaidWorldPosition + CrosshairWorldDirection * 50'000.f;
+		OutHitLocation = End;
 
 		GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_Visibility);
 
-		if (OutHit.bBlockingHit) return true;
+		if (OutHit.bBlockingHit)
+		{
+			OutHitLocation = OutHit.Location;
+			return true;
+		}
 	}
-
 	return false;
 }
 
@@ -382,27 +365,18 @@ void AShooterCharacter::CalculateCrosshairSpread(float DeltaTime)
 	FVector Velocity = GetVelocity();
 	Velocity.Z = 0;
 
-	UE_LOG(LogTemp, Warning, TEXT("========================================="));
-	UE_LOG(LogTemp, Warning, TEXT("WalkSpeedRange: %f"), WalkSpeedRange.Size());
-	UE_LOG(LogTemp, Warning, TEXT("VelocityMultiplierRange: %f"), VelocityMultiplierRange.Size());
-	UE_LOG(LogTemp, Warning, TEXT("Current velocity: %f"), Velocity.Size());
-
 	CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMultiplierRange, Velocity.Size());
-
-	UE_LOG(LogTemp, Warning, TEXT("CrosshairVelocityFactor: %f"), CrosshairVelocityFactor);
 
 	// Spread crosshairs slowly while in air
 	if(GetCharacterMovement()->IsFalling())
 	{
 		CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 2.25f, DeltaTime, 2.25f);
-		UE_LOG(LogTemp, Warning, TEXT("CrosshairInAirFactor (true): %f"), CrosshairInAirFactor);
 	}
 	// Character is on the ground
 	else
 	{
 		// Shrink crosshair repidly while on the ground
 		CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 0.f, DeltaTime, 30.f);
-		UE_LOG(LogTemp, Warning, TEXT("CrosshairInAirFactor (false): %f"), CrosshairInAirFactor);
 	}
 
 	if (bIsAiming)
@@ -424,12 +398,7 @@ void AShooterCharacter::CalculateCrosshairSpread(float DeltaTime)
 		CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, 0.f, DeltaTime, 60.f);
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("CrosshairAimFactor: %f"), CrosshairAimFactor);
-
 	CrosshairSpreadMultiplier = 0.5f + CrosshairVelocityFactor + CrosshairInAirFactor + CrosshairAimFactor + CrosshairShootingFactor;
-	
-	UE_LOG(LogTemp, Warning, TEXT("CrosshairSpreadMultiplier: %f"), CrosshairSpreadMultiplier);
-	UE_LOG(LogTemp, Warning, TEXT("========================================="));
 }
 
 void AShooterCharacter::FinishCrosshairBulletFire()
