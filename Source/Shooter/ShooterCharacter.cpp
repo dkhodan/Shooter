@@ -10,7 +10,10 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Math/UnrealMathUtility.h"
 #include "Components/WidgetComponent.h"
+#include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "ItemActor.h"
+#include "Weapon.h"
 
 
 AShooterCharacter::AShooterCharacter() :
@@ -79,6 +82,9 @@ void AShooterCharacter::BeginPlay()
 		CameraDefaultFOV = GetFollowCamera()->FieldOfView;
 		CameraCurrentFOV = CameraDefaultFOV;
 	}
+
+	// spawn default weapon and attach it to the mesh
+	EquipWeapon(SpawnDefaultEquippedWeapon());
 }
 
 void AShooterCharacter::Tick(float DeltaTime)
@@ -433,6 +439,36 @@ void AShooterCharacter::TraceForItems()
 		{
 			LastOverlappedItem->GetPickUpWidget()->SetVisibility(false);
 		}
+	}
+}
+
+AWeapon* AShooterCharacter::SpawnDefaultEquippedWeapon()
+{
+	// check the TSubclass of variable
+	if (DefaultWeaponClass)
+	{
+		// spawn a variable and get a hand socket
+		return GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);
+	}
+
+	return nullptr;
+}
+
+void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquip)
+{
+	if (WeaponToEquip)
+	{
+		WeaponToEquip->GetAreaSphere()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		WeaponToEquip->GetCollisionBox()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName("RightHandWeaponSocket");
+
+		if (HandSocket)
+		{
+			HandSocket->AttachActor(WeaponToEquip, GetMesh());
+		}
+
+		EquippedWeapon = WeaponToEquip;
 	}
 }
 
