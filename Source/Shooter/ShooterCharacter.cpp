@@ -76,7 +76,7 @@ AShooterCharacter::AShooterCharacter() :
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	if (FollowCamera)
 	{
 		CameraDefaultFOV = GetFollowCamera()->FieldOfView;
@@ -85,6 +85,14 @@ void AShooterCharacter::BeginPlay()
 
 	// spawn default weapon and attach it to the mesh
 	EquipWeapon(SpawnDefaultEquippedWeapon());
+}
+
+void AShooterCharacter::SwapWeapon(AWeapon* WeaponToSwap)
+{
+	DropWeapon();
+	EquipWeapon(WeaponToSwap);
+	TraceHitItem = nullptr;
+	LastOverlappedItem = nullptr;
 }
 
 void AShooterCharacter::Tick(float DeltaTime)
@@ -134,35 +142,38 @@ void AShooterCharacter::LookUpAtRate(float Rate)
 
 void AShooterCharacter::FireWeapon()
 {
-	if (FireSound)
+	if (EquippedWeapon)
 	{
-		UGameplayStatics::PlaySound2D(this, FireSound);
-	}
-
-	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName("BarrelSocket");
-
-	if (BarrelSocket)
-	{
-		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
-
-		if (MuzzleFlash)
+		if (FireSound)
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
+			UGameplayStatics::PlaySound2D(this, FireSound);
 		}
 
-		FVector BeamEnd;
-		if (GetBeamEndLocation(SocketTransform.GetLocation(), BeamEnd))
+		const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName("BarrelSocket");
+
+		if (BarrelSocket)
 		{
-			if (ImpactParticle)
+			const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
+
+			if (MuzzleFlash)
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, BeamEnd);
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
 			}
 
-			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BeamParticle, SocketTransform);
-
-			if (Beam)
+			FVector BeamEnd;
+			if (GetBeamEndLocation(SocketTransform.GetLocation(), BeamEnd))
 			{
-				Beam->SetVectorParameter(FName("Target"), BeamEnd);
+				if (ImpactParticle)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, BeamEnd);
+				}
+
+				UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BeamParticle, SocketTransform);
+
+				if (Beam)
+				{
+					Beam->SetVectorParameter(FName("Target"), BeamEnd);
+				}
 			}
 		}
 	}
@@ -336,7 +347,7 @@ void AShooterCharacter::Turn(float Value)
 	{
 		TurnScaleFactor = MouseHipTurnRate;
 	}
-	APawn::AddControllerYawInput(Value* TurnScaleFactor);
+	APawn::AddControllerYawInput(Value * TurnScaleFactor);
 }
 
 void AShooterCharacter::LookUp(float Value)
@@ -364,7 +375,7 @@ void AShooterCharacter::CalculateCrosshairSpread(float DeltaTime)
 	CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMultiplierRange, Velocity.Size());
 
 	// Spread crosshairs slowly while in air
-	if(GetCharacterMovement()->IsFalling())
+	if (GetCharacterMovement()->IsFalling())
 	{
 		CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 2.25f, DeltaTime, 2.25f);
 	}
@@ -416,21 +427,21 @@ void AShooterCharacter::TraceForItems()
 		FVector Empty;
 		if (TraceUnderCrosshairs(ItemTraceResult, Empty))
 		{
-			AItemActor* HitItem = Cast<AItemActor>(ItemTraceResult.Actor);
-			if (HitItem)
+			TraceHitItem = Cast<AItemActor>(ItemTraceResult.Actor);
+			if (TraceHitItem)
 			{
-				HitItem->GetPickUpWidget()->SetVisibility(true);
+				TraceHitItem->GetPickUpWidget()->SetVisibility(true);
 			}
 
 			if (LastOverlappedItem)
 			{
-				if (HitItem != LastOverlappedItem)
+				if (TraceHitItem != LastOverlappedItem)
 				{
 					LastOverlappedItem->GetPickUpWidget()->SetVisibility(false);
 				}
 			}
 
-			LastOverlappedItem = HitItem;
+			LastOverlappedItem = TraceHitItem;
 		}
 	}
 	else if (LastOverlappedItem)
@@ -454,12 +465,35 @@ AWeapon* AShooterCharacter::SpawnDefaultEquippedWeapon()
 	return nullptr;
 }
 
+void AShooterCharacter::DropWeapon()
+{
+	if (EquippedWeapon)
+	{
+		FDetachmentTransformRules DetachmentRules(EDetachmentRule::KeepWorld, true);
+		EquippedWeapon->GetItemMesh()->DetachFromComponent(DetachmentRules);
+		EquippedWeapon->SetItemState(EItemState::EIS_Falling);
+		EquippedWeapon->ThrowWeapon();
+	}
+}
+
+void AShooterCharacter::SelectButtonPressed()
+{
+	if (TraceHitItem)
+	{
+		auto TraceHitWeapon = Cast<AWeapon>(TraceHitItem);
+		SwapWeapon(TraceHitWeapon);
+	}
+}
+
+void AShooterCharacter::SelectButtonReleased()
+{
+}
+
 void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquip)
 {
 	if (WeaponToEquip)
 	{
-		WeaponToEquip->GetAreaSphere()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-		WeaponToEquip->GetCollisionBox()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		WeaponToEquip->SetItemState(EItemState::EIS_Equipped);
 
 		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName("RightHandWeaponSocket");
 
@@ -469,6 +503,7 @@ void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquip)
 		}
 
 		EquippedWeapon = WeaponToEquip;
+		EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
 	}
 }
 
@@ -489,6 +524,8 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("FireButton", IE_Released, this, &AShooterCharacter::FireButtonReleased);
 	PlayerInputComponent->BindAction("Aiming", IE_Pressed, this, &AShooterCharacter::AimingButtonPressed);
 	PlayerInputComponent->BindAction("Aiming", IE_Released, this, &AShooterCharacter::AimingButtonReleased);
+	PlayerInputComponent->BindAction("Select", IE_Pressed, this, &AShooterCharacter::SelectButtonPressed);
+	PlayerInputComponent->BindAction("Select", IE_Released, this, &AShooterCharacter::SelectButtonReleased);
 }
 
 float AShooterCharacter::GetCrosshairSpreadMultiplier() const

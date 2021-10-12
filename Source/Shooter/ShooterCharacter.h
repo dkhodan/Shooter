@@ -52,6 +52,14 @@ protected:
 
 	AWeapon* SpawnDefaultEquippedWeapon();
 
+	// Detach weapon and fall on the ground
+	void DropWeapon();
+
+	void SelectButtonPressed();
+	void SelectButtonReleased();
+
+	/* Drops currently equipped weapon and equip TraceHitItem */
+	void SwapWeapon(AWeapon* WeaponToSwap);
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -178,6 +186,10 @@ private:
 	/* Set in BP for the default weapon class */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AWeapon> DefaultWeaponClass;
+
+	/* The item currently hit by trace in TraceForItem (could be nullptr) */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	AItemActor* TraceHitItem;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
