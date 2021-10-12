@@ -133,6 +133,12 @@ private:
 	float ItemInterpX;
 	float ItemInterpY;
 
+	// initial yaw offset between the camera and interpring item
+	float InterpInitialYawOffset;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UCurveFloat* ItemScaleCurve;
+
 public:
 
 	FORCEINLINE UWidgetComponent* GetPickUpWidget() const { return PickUpWidget; }

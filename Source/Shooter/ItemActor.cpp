@@ -3,6 +3,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/SphereComponent.h"
+#include "Camera/CameraComponent.h"
 #include "ShooterCharacter.h"
 #include "Components/WidgetComponent.h"
 
@@ -17,7 +18,8 @@ AItemActor::AItemActor() :
 	CameraTargetLocation(FVector(0.f)),
 	bIsInterping(false),
 	ItemInterpX(0.f),
-	ItemInterpY(0.f)
+	ItemInterpY(0.f),
+	InterpInitialYawOffset(0.f)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -48,8 +50,8 @@ void AItemActor::BeginPlay()
 	AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AItemActor::OnSphereEndOverlap);
 
 	// set active stars array based on item rarity
-	if(PickUpWidget) SetActiveStars();
-	
+	if (PickUpWidget) SetActiveStars();
+
 	SetItemProperties(ItemState);
 }
 
@@ -119,7 +121,7 @@ void AItemActor::SetActiveStars()
 
 void AItemActor::SetItemProperties(EItemState State)
 {
-	switch (State) 
+	switch (State)
 	{
 	case EItemState::EIS_Pickup:
 		ItemMesh->SetSimulatePhysics(false);
@@ -194,6 +196,9 @@ void AItemActor::FinishInterping()
 	{
 		Character->GetPickUpItem(this);
 	}
+
+	// Set scale back to normal
+	SetActorScale3D(FVector(1.f));
 }
 
 void AItemActor::ItemInterp(float DeltaTime)
@@ -231,6 +236,18 @@ void AItemActor::ItemInterp(float DeltaTime)
 			ItemLocation.Y = InterpYValue;
 
 			SetActorLocation(ItemLocation, true, nullptr, ETeleportType::TeleportPhysics);
+
+			// Camera rotation this frame + initial yaw offset
+			const FRotator CameraRotation = Character->GetFollowCamera()->GetComponentRotation();
+			FRotator ItemRotation(0.f, CameraRotation.Yaw + InterpInitialYawOffset, 0.f);
+
+			SetActorRotation(ItemRotation, ETeleportType::TeleportPhysics);
+
+			if (ItemScaleCurve)
+			{
+				const float ScaleCurveValue = ItemScaleCurve->GetFloatValue(ElapsedTime);
+				SetActorScale3D(FVector(ScaleCurveValue, ScaleCurveValue, ScaleCurveValue));
+			}
 		}
 	}
 }
@@ -258,5 +275,11 @@ void AItemActor::StartItemCurve(AShooterCharacter* Char)
 	SetItemState(EItemState::EIS_EquipInterping);
 
 	GetWorldTimerManager().SetTimer(ItemInterpTimer, this, &AItemActor::FinishInterping, ZCurveTime);
+
+	// Get initial yaw of the camera and item
+	const float CameraRotationYaw = Character->GetFollowCamera()->GetComponentRotation().Yaw;
+	const float ItemRotationYaw = GetActorRotation().Yaw;
+	
+	InterpInitialYawOffset = ItemRotationYaw - CameraRotationYaw;
 }
 
