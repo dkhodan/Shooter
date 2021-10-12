@@ -51,6 +51,12 @@ protected:
 	// Set properties of the item components based on state
 	void SetItemProperties(EItemState State);
 
+	// Callback function for a timer when interp finished
+	void FinishInterping();
+
+	// Handles item interpolation when in the Equipinterping state
+	void ItemInterp(float DeltaTime);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -70,7 +76,7 @@ private:
 
 
 	/*
-		To show this actually actually in-game first need to set blueprints PickUpWidget_BP and BaseWeapon_BP where this name will be displayed.
+		To show this actually in-game first need to set blueprints PickUpWidget_BP and BaseWeapon_BP where this name will be displayed.
 		First we need to create a reference to C++ class inside blueprint itself and initialize this reference with a proper value. 
 		Example in the BP: BaseWeapon_BP (get a reference c++ class and use Cast To Widget_BP
 		After that inside Widget_BP we can get this reference and simply fetch a value of the string that we can set anywhere.
@@ -95,6 +101,38 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	TArray<bool> ActiveStars;
 
+	/* Section for Item To Camera Interpolation */
+
+	// the curve asset to use the item Z location when interping 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	class UCurveFloat* ItemZCurve;
+
+	// starting location when interping begins
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	FVector ItemInterpStartLocation;
+
+	// Target interp location in front of the camera
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	FVector CameraTargetLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	bool bIsInterping;
+
+	// Place when we start interping
+	FTimerHandle ItemInterpTimer;
+
+	// How much time we want to interp pick up animation
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float ZCurveTime;
+
+	// Just a pointer to the character
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	class AShooterCharacter* Character;
+
+	// X and Y for the item while interping equipment state
+	float ItemInterpX;
+	float ItemInterpY;
+
 public:
 
 	FORCEINLINE UWidgetComponent* GetPickUpWidget() const { return PickUpWidget; }
@@ -108,4 +146,7 @@ public:
 	FORCEINLINE USkeletalMeshComponent* GetItemMesh() const { return ItemMesh; }
 	
 	void SetItemState(EItemState State);
+
+	// Called from the AShooterCharacter class
+	void StartItemCurve(AShooterCharacter* Char);
 };
