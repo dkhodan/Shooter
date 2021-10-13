@@ -54,6 +54,7 @@ Build/*
 
 Content/ParagonLtBelica/*
 Content/SpaceshipInterior/*
+Content/AnimStarterPack/*
 
 # Whitelist PakBlacklist-<BuildConfiguration>.txt files
 !Build/*/

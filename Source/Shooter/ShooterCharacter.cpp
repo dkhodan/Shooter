@@ -42,7 +42,10 @@ AShooterCharacter::AShooterCharacter() :
 	bShouldTraceForItems(false),
 	//Camera interp location variables
 	CameraInterpDistance(250.f),
-	CameraInterpElevation(65.f)
+	CameraInterpElevation(65.f),
+	// started ammo amount
+	Starting9MMAmmo(85),
+	StartingARAmmo(120)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -88,6 +91,9 @@ void AShooterCharacter::BeginPlay()
 
 	// spawn default weapon and attach it to the mesh
 	EquipWeapon(SpawnDefaultEquippedWeapon());
+
+	// initialize default ammount of ammo
+	InitializeAmmoMap();
 }
 
 void AShooterCharacter::SwapWeapon(AWeapon* WeaponToSwap)
@@ -96,6 +102,12 @@ void AShooterCharacter::SwapWeapon(AWeapon* WeaponToSwap)
 	EquipWeapon(WeaponToSwap);
 	TraceHitItem = nullptr;
 	LastOverlappedItem = nullptr;
+}
+
+void AShooterCharacter::InitializeAmmoMap()
+{
+	AmmoMap.Add(EAmmoType::EAT_9MM, Starting9MMAmmo);
+	AmmoMap.Add(EAmmoType::EAT_AR, StartingARAmmo);
 }
 
 void AShooterCharacter::Tick(float DeltaTime)
