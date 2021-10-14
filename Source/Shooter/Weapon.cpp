@@ -2,7 +2,8 @@
 
 AWeapon::AWeapon() : 
 	ThrowWeaponTime(0.7f),
-	bIsFalling(false)
+	bIsFalling(false),
+	Ammo(0)
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -15,6 +16,18 @@ void AWeapon::Tick(float DeltaTime)
 	{
 		const FRotator MeshRotation(0.f, GetItemMesh()->GetComponentRotation().Yaw, 0.f);
 		GetItemMesh()->SetWorldRotation(MeshRotation, false, nullptr, ETeleportType::TeleportPhysics);
+	}
+}
+
+void AWeapon::DecrementAmmo()
+{
+	if (Ammo - 1 <= 0)
+	{
+		Ammo = 0;
+	}
+	else
+	{
+		--Ammo;
 	}
 }
 

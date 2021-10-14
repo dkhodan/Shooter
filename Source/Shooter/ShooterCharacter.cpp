@@ -110,6 +110,15 @@ void AShooterCharacter::InitializeAmmoMap()
 	AmmoMap.Add(EAmmoType::EAT_AR, StartingARAmmo);
 }
 
+bool AShooterCharacter::WeaponHasAmmo()
+{
+	if (EquippedWeapon)
+	{
+		return EquippedWeapon->GetAmmoAmount() > 0;
+	}
+	return false;
+}
+
 void AShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -164,11 +173,11 @@ void AShooterCharacter::FireWeapon()
 			UGameplayStatics::PlaySound2D(this, FireSound);
 		}
 
-		const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName("BarrelSocket");
+		const USkeletalMeshSocket* BarrelSocket = EquippedWeapon->GetItemMesh()->GetSocketByName("BarrelSocket");
 
 		if (BarrelSocket)
 		{
-			const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
+			const FTransform SocketTransform = BarrelSocket->GetSocketTransform(EquippedWeapon->GetItemMesh());
 
 			if (MuzzleFlash)
 			{
@@ -204,6 +213,11 @@ void AShooterCharacter::FireWeapon()
 
 	// Start bullet fire timer for crosshairs
 	StartCrosshairBulletFire();
+
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->DecrementAmmo();
+	}
 }
 
 bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation)
@@ -273,7 +287,10 @@ void AShooterCharacter::SetSensitivity()
 void AShooterCharacter::FireButtonPressed()
 {
 	bIsFireButtonPressed = true;
-	StartFireTimer();
+	if (WeaponHasAmmo())
+	{
+		StartFireTimer();
+	}
 }
 
 void AShooterCharacter::FireButtonReleased()
@@ -330,26 +347,12 @@ bool AShooterCharacter::TraceUnderCrosshairs(FHitResult& OutHit, FVector& OutHit
 
 void AShooterCharacter::AutoFireReset()
 {
-	bShouldFire = true;
-	if (bIsFireButtonPressed) StartFireTimer();
+	if (WeaponHasAmmo())
+	{
+		bShouldFire = true;
+		if (bIsFireButtonPressed) StartFireTimer();
+	}
 }
-
-//void AShooterCharacter::Jump()
-//{
-//	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-//
-//	UE_LOG(LogTemp, Warning, TEXT("We are in Jump()"));
-//
-//	// Get and run hip fire montage that was set from the blueprint
-//	if (AnimInstance && JumpMontage)
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("Statement is true"));
-//		AnimInstance->Montage_Play(JumpMontage);
-//		AnimInstance->Montage_JumpToSection(FName("JumpStart"));
-//	}
-//
-//	//ACharacter::Jump();
-//}
 
 void AShooterCharacter::Turn(float Value)
 {

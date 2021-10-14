@@ -71,6 +71,10 @@ protected:
 
 	// initialize default values of ammo 
 	void InitializeAmmoMap();
+
+	// validate if weapon has ammo
+	bool WeaponHasAmmo();
+
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
