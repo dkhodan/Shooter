@@ -92,6 +92,14 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void FinishReloading();
 
+	// called from animation blueprint with CrabClip notify
+	UFUNCTION(BlueprintCallable)
+	void GrabClip();
+
+	// called from animation blueprint with CrabClip notify
+	UFUNCTION(BlueprintCallable)
+	void ReleaseClip();
+
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -250,6 +258,14 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	ECombatState CombatState;
+
+	/* Transform of the clip when we first grab it during reloading */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	FTransform ClipTransform;
+
+	/* Component which will be attached to the character hand during reloading */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* HandSceneComponent;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

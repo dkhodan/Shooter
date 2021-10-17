@@ -49,6 +49,11 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	FName ReloadMontageSection;
 
+	bool bMovingClip;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	FName ClipBoneName;
+
 public:
 	// Add impulse to the weapon
 	void ThrowWeapon();
@@ -67,4 +72,8 @@ public:
 	FORCEINLINE FName GetReloadMontageSection() const { return ReloadMontageSection; }
 
 	FORCEINLINE int32 GetMagazineCapacity() const { return MagazineCapacity; }
+
+	FORCEINLINE FName GetClipBoneName() const { return ClipBoneName; }
+
+	FORCEINLINE void SetMovingClip(bool bMove) { bMovingClip = bMove; }
 };
