@@ -2,14 +2,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "AmmoType.h"
 #include "ShooterCharacter.generated.h"
 
 UENUM(BlueprintType)
-enum class EAmmoType : uint8
+enum class ECombatState : uint8
 {
-	EAT_9MM UMETA(DisplayName="9mm"),
-	EAT_AR UMETA(DisplayName="Assault Rifle"),
-	EAT_MAX UMETA(DisplayName="Default MAX")
+	ECS_Unoccupied UMETA(DisplayName = "Unoccupied"),
+	ECS_FireTimerInProgress UMETA(DisplayName = "FireTimerInProgress"),
+	ECS_Reloading UMETA(DisplayName = "Reloading"),
+
+	ECS_MAX UMETA(DisplayName = "Default MAX")
 };
 
 UCLASS()
@@ -74,6 +77,20 @@ protected:
 
 	// validate if weapon has ammo
 	bool WeaponHasAmmo();
+
+	void PlayFireSound();
+	void SendBullet();
+	void PlayGunfireMontage();
+
+	// Reload section
+	void ReloadButtonPressed();
+	void ReloadWeapon();
+
+	// check to see if we have ammo of equipped weapon ammo type
+	bool CarryingAmmo();
+
+	UFUNCTION(BlueprintCallable)
+	void FinishReloading();
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -142,6 +159,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	class UAnimMontage* JumpMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* ReloadMontage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	bool bIsAiming;
@@ -227,6 +247,9 @@ private:
 	// starting ammount of AR ammo
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Items", meta = (AllowPrivateAccess = "true"))
 	int32 StartingARAmmo;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	ECombatState CombatState;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

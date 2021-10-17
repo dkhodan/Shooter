@@ -4,11 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "ItemActor.h"
+#include "AmmoType.h"
 #include "Weapon.generated.h"
 
-/**
- * 
- */
+UENUM(BlueprintType)
+enum class EWeaponType : uint8
+{
+	EWT_SubmachineGun UMETA(DisplayName = "SubmachineGun"),
+	EWT_AssaultRifle UMETA(DisplayName = "AssaultRifle"),
+
+	EWT_MAX UMETA(DisplayName = "Default MAX")
+};
+
 UCLASS()
 class SHOOTER_API AWeapon : public AItemActor
 {
@@ -30,13 +37,34 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	int32 Ammo;
 
-public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	int32 MagazineCapacity;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	EWeaponType WeaponType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	EAmmoType AmmoType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	FName ReloadMontageSection;
+
+public:
 	// Add impulse to the weapon
 	void ThrowWeapon();
 
 	// Called from Character class when firing weapon
 	void DecrementAmmo();
 
+	void ReloadAmmo(int32 Amount);
+
 	FORCEINLINE int32 GetAmmoAmount() const { return Ammo; }
+
+	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
+
+	FORCEINLINE EAmmoType GetAmmoType() const { return AmmoType; }
+
+	FORCEINLINE FName GetReloadMontageSection() const { return ReloadMontageSection; }
+
+	FORCEINLINE int32 GetMagazineCapacity() const { return MagazineCapacity; }
 };
