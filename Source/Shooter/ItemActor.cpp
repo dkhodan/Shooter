@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "ShooterCharacter.h"
 #include "Components/WidgetComponent.h"
+#include "Sound/SoundCue.h"
 
 AItemActor::AItemActor() :
 	ItemName(FString("Default Name")),
