@@ -1,4 +1,5 @@
 #include "Weapon.h"
+#include "Sound/SoundCue.h"
 
 AWeapon::AWeapon() :
 	ThrowWeaponTime(0.7f),

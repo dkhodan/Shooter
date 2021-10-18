@@ -77,6 +77,15 @@ AShooterCharacter::AShooterCharacter() :
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	ZoomInterpSpeed = 20.f;
+
+	UE_LOG(LogTemp, Warning, TEXT("HandSceneComponent before!"));
+	HandSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("HandSceneComponent"));
+	UE_LOG(LogTemp, Warning, TEXT("HandSceneComponent after!"));
+
+	if (HandSceneComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("HandSceneComponent created inside constructor!"));
+	}
 }
 
 
@@ -247,6 +256,7 @@ void AShooterCharacter::GrabClip()
 	ClipTransform = EquippedWeapon->GetItemMesh()->GetBoneTransform(ClipBoneIndex);
 
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::KeepRelative, true);
+
 	HandSceneComponent->AttachToComponent(GetMesh(), AttachmentRules, FName(TEXT("hand_l")));
 	HandSceneComponent->SetWorldTransform(ClipTransform);
 
@@ -255,6 +265,7 @@ void AShooterCharacter::GrabClip()
 
 void AShooterCharacter::ReleaseClip()
 {
+	EquippedWeapon->SetMovingClip(false);
 }
 
 void AShooterCharacter::Tick(float DeltaTime)
@@ -645,7 +656,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AShooterCharacter::ReloadButtonPressed);
 }
 
-float AShooterCharacter::GetCrosshairSpreadMultiplier() const
+float AShooterCharacter::GetCrosshairSpreadMultiplier () const
 {
 	return CrosshairSpreadMultiplier;
 }
