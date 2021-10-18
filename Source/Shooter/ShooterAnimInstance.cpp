@@ -3,9 +3,47 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
+UShooterAnimInstance::UShooterAnimInstance() :
+	Speed(0.f),
+	bIsInAir(false),
+	bIsAccelerating(false),
+	MovementOffset(0.f),
+	LastMovementOffsetYaw(0.f),
+	bIsAiming(false),
+	CharacterYaw(0.f),
+	CharacterYawLastFrame(0.f),
+	RootYawOffset(0.f)
+{
+
+}
+
 void UShooterAnimInstance::NativeInitializeAnimation()
 {
 	ShooterCharacter = Cast<AShooterCharacter>(TryGetPawnOwner());
+}
+
+void UShooterAnimInstance::TurnInPlace()
+{
+	if (!ShooterCharacter) return;
+
+	// Don't want to turn in place where character is moving
+	if (Speed > 0)
+	{
+
+	}
+	else
+	{
+		CharacterYawLastFrame = CharacterYaw;
+		CharacterYaw = ShooterCharacter->GetActorRotation().Yaw;
+		const float YawDelta = CharacterYaw - CharacterYawLastFrame;
+		RootYawOffset -= YawDelta;
+
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(1, -1, FColor::Green, FString::Printf(TEXT("Character Yaw: %f"), CharacterYaw));
+			GEngine->AddOnScreenDebugMessage(2, -1, FColor::Green, FString::Printf(TEXT("RootYawOffset: %f"), RootYawOffset));
+		}
+	}
 }
 
 
@@ -50,4 +88,6 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 
 		bIsJumping = ShooterCharacter->GetMovementComponent()->IsFalling();
 	}
+
+	TurnInPlace();
 }
