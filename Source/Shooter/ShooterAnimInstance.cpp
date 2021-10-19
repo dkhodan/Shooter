@@ -29,19 +29,40 @@ void UShooterAnimInstance::TurnInPlace()
 	// Don't want to turn in place where character is moving
 	if (Speed > 0)
 	{
-
+		RootYawOffset = 0.f;
+		CharacterYaw = ShooterCharacter->GetActorRotation().Yaw;
+		CharacterYawLastFrame = CharacterYaw;
+		RotationCurve = 0.f;
+		RotationCurveLastFrame = 0.f;
 	}
 	else
 	{
+		// Calculate root yaw offset [-180, 180]
 		CharacterYawLastFrame = CharacterYaw;
 		CharacterYaw = ShooterCharacter->GetActorRotation().Yaw;
 		const float YawDelta = CharacterYaw - CharacterYawLastFrame;
-		RootYawOffset -= YawDelta;
+		RootYawOffset = UKismetMathLibrary::NormalizeAxis(RootYawOffset - YawDelta);
 
-		if (GEngine)
+		// get value of metadata curve which created inside animation IDLE_TURN_LEFT_90
+		// Character\Animation\MainCharacterAnimations\Movement
+		const float Turning = GetCurveValue(TEXT("Turning"));
+
+		if (Turning > 0)
 		{
-			GEngine->AddOnScreenDebugMessage(1, -1, FColor::Green, FString::Printf(TEXT("Character Yaw: %f"), CharacterYaw));
-			GEngine->AddOnScreenDebugMessage(2, -1, FColor::Green, FString::Printf(TEXT("RootYawOffset: %f"), RootYawOffset));
+			RotationCurveLastFrame = RotationCurve;
+			RotationCurve = GetCurveValue(TEXT("Rotation"));
+			const float DeltaRotation = RotationCurve - RotationCurveLastFrame;
+
+			// RootYawOffset > 0 mean we turning left, if RootYawOffset < 0 mean we turning right
+			RootYawOffset > 0 ? RootYawOffset -= DeltaRotation : RootYawOffset += DeltaRotation;
+
+			const float AbsoluteRootYawOffset = FMath::Abs(RootYawOffset);
+
+			if (AbsoluteRootYawOffset > 90.f)
+			{
+				const float YawExcess = AbsoluteRootYawOffset - 90.f;
+				RootYawOffset > 0 ? RootYawOffset -= YawExcess : RootYawOffset += YawExcess;
+			}
 		}
 	}
 }
