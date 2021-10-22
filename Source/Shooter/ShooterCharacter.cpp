@@ -190,7 +190,7 @@ void AShooterCharacter::ReloadButtonPressed()
 void AShooterCharacter::ReloadWeapon()
 {
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
-	if (!EquippedWeapon) return;
+	if (!EquippedWeapon && !EquippedWeapon->ClipIsFull()) return;
 
 	if (CarryingAmmo())
 	{
@@ -702,4 +702,5 @@ void AShooterCharacter::GetPickUpItem(AItemActor* Item)
 		SwapWeapon(Weapon);
 	}
 }
+
 

@@ -77,4 +77,7 @@ public:
 	FORCEINLINE FName GetClipBoneName() const { return ClipBoneName; }
 
 	FORCEINLINE void SetMovingClip(bool bMove) { bMovingClip = bMove; }
+
+	// Weapon magazine currently full
+	bool ClipIsFull();
 };

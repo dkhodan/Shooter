@@ -24,6 +24,7 @@ public:
 protected:
 	/* Handle turning in place variables */
 	void TurnInPlace();
+	void CalculateAimOffset();
 
 private:
 
@@ -64,4 +65,12 @@ private:
 	float RotationCurve;
 
 	float RotationCurveLastFrame;
+
+	/* The Pith of the aim rotation used for AimOffset */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
+	float PitchAimOffset;
+
+	/* True when reloading. Used to prevent AimOffset while reloading */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
+	bool bReloading;
 };
