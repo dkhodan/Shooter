@@ -14,7 +14,8 @@ UShooterAnimInstance::UShooterAnimInstance() :
 	CharacterYawLastFrame(0.f),
 	RootYawOffset(0.f),
 	PitchAimOffset(0.f),
-	bReloading(false)
+	bReloading(false),
+	OffsetState(EOffsetState::EOS_Hip)
 {
 
 }
@@ -31,7 +32,7 @@ void UShooterAnimInstance::TurnInPlace()
 	PitchAimOffset = ShooterCharacter->GetBaseAimRotation().Pitch;
 
 	// Don't want to turn in place where character is moving
-	if (Speed > 0)
+	if (Speed > 0 || bIsInAir)
 	{
 		RootYawOffset = 0.f;
 		CharacterYaw = ShooterCharacter->GetActorRotation().Yaw;
@@ -118,6 +119,23 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		bIsAiming = ShooterCharacter->GetIsAiming();
 
 		bIsJumping = ShooterCharacter->GetMovementComponent()->IsFalling();
+
+		if (bReloading)
+		{
+			OffsetState = EOffsetState::EOS_Reloading;
+		}
+		else if (bIsInAir)
+		{
+			OffsetState = EOffsetState::EOS_InAir;
+		}
+		else if (ShooterCharacter->GetIsAiming())
+		{
+			OffsetState = EOffsetState::EOS_Aimig;
+		}
+		else
+		{
+			OffsetState = EOffsetState::EOS_Hip;
+		}
 	}
 
 	TurnInPlace();

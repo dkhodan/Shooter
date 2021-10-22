@@ -190,7 +190,8 @@ void AShooterCharacter::ReloadButtonPressed()
 void AShooterCharacter::ReloadWeapon()
 {
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
-	if (!EquippedWeapon && !EquippedWeapon->ClipIsFull()) return;
+	if (!EquippedWeapon) return;
+	if (EquippedWeapon->ClipIsFull()) return;
 
 	if (CarryingAmmo())
 	{
