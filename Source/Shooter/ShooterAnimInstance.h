@@ -32,7 +32,6 @@ public:
 protected:
 	/* Handle turning in place variables */
 	void TurnInPlace();
-	void CalculateAimOffset();
 
 	/* Handle calculations for leaning when running */
 	void Lean(float DeltaTime);
@@ -94,4 +93,7 @@ private:
 	/* YawDelta used for leaning in running blendspace */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Lean", meta = (AllowPrivateAccess = "true"))
 	float YawDelta;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Crouching", meta = (AllowPrivateAccess = "true"))
+	bool bCrouching;
 };

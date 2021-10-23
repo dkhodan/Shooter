@@ -40,6 +40,7 @@ protected:
 	void FireButtonReleased();
 	void StartFireTimer();
 	bool TraceUnderCrosshairs(FHitResult& OutHit, FVector& OutHitLocation);
+	void CrouchButtonPressed();
 
 	UFUNCTION()
 	void AutoFireReset();
@@ -267,6 +268,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* HandSceneComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	bool bCrouching;
+
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
@@ -275,6 +279,8 @@ public:
 	FORCEINLINE bool GetIsAiming() const { return bIsAiming; }
 
 	FORCEINLINE ECombatState GetCombatState() const { return CombatState; }
+
+	FORCEINLINE bool IsCrouching() const { return bCrouching; }
 
 	UFUNCTION(BlueprintCallable)
 	float GetCrosshairSpreadMultiplier() const;

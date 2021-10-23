@@ -46,7 +46,8 @@ AShooterCharacter::AShooterCharacter() :
 	// started ammo amount
 	Starting9MMAmmo(85),
 	StartingARAmmo(120),
-	CombatState(ECombatState::ECS_Unoccupied)
+	CombatState(ECombatState::ECS_Unoccupied),
+	bCrouching(false)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -205,6 +206,14 @@ void AShooterCharacter::ReloadWeapon()
 			AnimInstance->Montage_JumpToSection(EquippedWeapon->GetReloadMontageSection());
 		}
 	}
+}
+
+
+void AShooterCharacter::CrouchButtonPressed()
+{
+	if (GetMovementComponent()->IsFalling()) return;
+
+	bCrouching = !bCrouching;
 }
 
 bool AShooterCharacter::CarryingAmmo()
@@ -660,6 +669,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Select", IE_Released, this, &AShooterCharacter::SelectButtonReleased);
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AShooterCharacter::ReloadButtonPressed);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AShooterCharacter::CrouchButtonPressed);
 }
 
 float AShooterCharacter::GetCrosshairSpreadMultiplier () const
