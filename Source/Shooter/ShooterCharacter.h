@@ -42,6 +42,8 @@ protected:
 	bool TraceUnderCrosshairs(FHitResult& OutHit, FVector& OutHitLocation);
 	void CrouchButtonPressed();
 	void InterpCapsuleHalfHeight(float DeltaTime);
+	void Aim();
+	void StopAiming();
 
 	UFUNCTION()
 	void AutoFireReset();
@@ -299,6 +301,8 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float CrouchingGroundFriction;
+
+	bool bAimingButtonPressed;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

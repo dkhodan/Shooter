@@ -29,6 +29,8 @@ AShooterCharacter::AShooterCharacter() :
 	HipLookUpRate(90.f),
 	AimingTurnRate(20.f),
 	AimingLookUpRate(20.f),
+	bAimingButtonPressed(false),
+
 
 	// Mouse sensivity rate
 	MouseHipTurnRate(1.f),
@@ -194,11 +196,13 @@ void AShooterCharacter::ReloadButtonPressed()
 void AShooterCharacter::ReloadWeapon()
 {
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
+
 	if (!EquippedWeapon) return;
 	if (EquippedWeapon->ClipIsFull()) return;
 
 	if (CarryingAmmo())
 	{
+		if (bIsAiming) StopAiming();
 		CombatState = ECombatState::ECS_Reloading;
 
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -253,6 +257,19 @@ void AShooterCharacter::InterpCapsuleHalfHeight(float DeltaTime)
 	GetCapsuleComponent()->SetCapsuleHalfHeight(InterpHalfHeigh);
 }
 
+void AShooterCharacter::Aim()
+{
+	bIsAiming = true;
+	GetCharacterMovement()->MaxWalkSpeed = AimingMovementSpeed;
+}
+
+void AShooterCharacter::StopAiming()
+{
+	bIsAiming = false;
+
+	if (!bCrouching) GetCharacterMovement()->MaxWalkSpeed = BaseMovementSpeed;
+}
+
 bool AShooterCharacter::CarryingAmmo()
 {
 	if (!EquippedWeapon) return false;
@@ -270,6 +287,8 @@ void AShooterCharacter::FinishReloading()
 {
 	if (!EquippedWeapon) return;
 	CombatState = ECombatState::ECS_Unoccupied;
+
+	if (bIsAiming) Aim();
 
 	EAmmoType AmmoType = EquippedWeapon->GetAmmoType();
 
@@ -420,15 +439,17 @@ bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, 
 
 void AShooterCharacter::AimingButtonPressed()
 {
-	bIsAiming = true;
-	GetCharacterMovement()->MaxWalkSpeed = AimingMovementSpeed;
+	bAimingButtonPressed = true;
+	if (CombatState != ECombatState::ECS_Reloading)
+	{
+		Aim();
+	}
 }
 
 void AShooterCharacter::AimingButtonReleased()
 {
-	bIsAiming = false;
-
-	if (!bCrouching) GetCharacterMovement()->MaxWalkSpeed = BaseMovementSpeed;
+	bAimingButtonPressed = false;
+	StopAiming();
 }
 
 void AShooterCharacter::UpdateCameraFOV(float DeltaTime)
