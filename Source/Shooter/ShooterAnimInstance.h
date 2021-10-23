@@ -36,6 +36,8 @@ protected:
 	/* Handle calculations for leaning when running */
 	void Lean(float DeltaTime);
 
+	void RecoilCalculation();
+
 private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
@@ -96,4 +98,11 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Crouching", meta = (AllowPrivateAccess = "true"))
 	bool bCrouching;
+
+	/* Weapon recoil */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float RecoilWeight;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	bool bTurningInPlace;
 };

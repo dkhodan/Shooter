@@ -41,6 +41,7 @@ protected:
 	void StartFireTimer();
 	bool TraceUnderCrosshairs(FHitResult& OutHit, FVector& OutHitLocation);
 	void CrouchButtonPressed();
+	void InterpCapsuleHalfHeight(float DeltaTime);
 
 	UFUNCTION()
 	void AutoFireReset();
@@ -100,6 +101,8 @@ protected:
 	// called from animation blueprint with CrabClip notify
 	UFUNCTION(BlueprintCallable)
 	void ReleaseClip();
+
+	virtual void Jump() override;
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -270,6 +273,32 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool bCrouching;
+
+	/* Regular movement speed */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float BaseMovementSpeed;
+
+	/* Crouch movement speed */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float CrouchMovementSpeed;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float AimingMovementSpeed;
+
+	// Current HalfHeight of the capsule
+	float CurrentCapsuleHalfHeight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float StandingCapsuleHalfHeight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float CrouchingCapsuleHalfHeight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float BaseGroundFriction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float CrouchingGroundFriction;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

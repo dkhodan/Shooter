@@ -18,7 +18,9 @@ UShooterAnimInstance::UShooterAnimInstance() :
 	CharacterRotationLastFrame(FRotator(0.f)),
 	TIPCharacterYaw(0),
 	TIPCharacterYawLastFrame(0),
-	YawDelta(0)
+	YawDelta(0),
+	RecoilWeight(1.f),
+	bTurningInPlace(false)
 {
 
 }
@@ -32,6 +34,7 @@ void UShooterAnimInstance::TurnInPlace()
 {
 	if (!ShooterCharacter) return;
 
+	
 	PitchAimOffset = ShooterCharacter->GetBaseAimRotation().Pitch;
 
 	// Don't want to turn in place where character is moving
@@ -57,6 +60,7 @@ void UShooterAnimInstance::TurnInPlace()
 
 		if (Turning > 0)
 		{
+			bTurningInPlace = true;
 			RotationCurveLastFrame = RotationCurve;
 			RotationCurve = GetCurveValue(TEXT("Rotation"));
 			const float DeltaRotation = RotationCurve - RotationCurveLastFrame;
@@ -72,6 +76,24 @@ void UShooterAnimInstance::TurnInPlace()
 				RootYawOffset > 0 ? RootYawOffset -= YawExcess : RootYawOffset += YawExcess;
 			}
 		}
+		else
+		{
+			bTurningInPlace = false;
+		}
+	}
+
+	// set recoil weight
+	if (bTurningInPlace)
+	{
+		bReloading ? RecoilWeight = 1.f : RecoilWeight = 0.f;
+	}
+	else if (bCrouching)
+	{
+		bReloading ? RecoilWeight = 1.f : RecoilWeight = 0.1f;
+	}
+	else
+	{
+		bIsAiming || bReloading ? RecoilWeight = 1.f : RecoilWeight = 0.5f;
 	}
 }
 
@@ -87,6 +109,10 @@ void UShooterAnimInstance::Lean(float DeltaTime)
 	const float Target = Delta.Yaw / DeltaTime;
 	const float Interp = FMath::FInterpTo(YawDelta, Target, DeltaTime, 6.f);
 	YawDelta = FMath::Clamp(Interp, -90.f, 90.f);
+}
+
+void UShooterAnimInstance::RecoilCalculation()
+{
 }
 
 
