@@ -44,6 +44,7 @@ protected:
 	void InterpCapsuleHalfHeight(float DeltaTime);
 	void Aim();
 	void StopAiming();
+	void PickUpAmmo(class AAmmo* Ammo);
 
 	UFUNCTION()
 	void AutoFireReset();

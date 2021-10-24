@@ -15,6 +15,7 @@
 #include "Components/SphereComponent.h"
 #include "ItemActor.h"
 #include "Weapon.h"
+#include "Ammo.h"
 
 
 AShooterCharacter::AShooterCharacter() :
@@ -268,6 +269,28 @@ void AShooterCharacter::StopAiming()
 	bIsAiming = false;
 
 	if (!bCrouching) GetCharacterMovement()->MaxWalkSpeed = BaseMovementSpeed;
+}
+
+void AShooterCharacter::PickUpAmmo(AAmmo* Ammo)
+{
+	UE_LOG(LogTemp, Warning, TEXT("PickUpAmmo() call!"));
+	if (auto AmmoCount = AmmoMap.Find(Ammo->GetAmmoType()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AmmoCount: %f"), *AmmoCount);
+
+		*AmmoCount += Ammo->GetItemCount();
+		AmmoMap[Ammo->GetAmmoType()] = *AmmoCount;
+	}
+
+	if (EquippedWeapon->GetAmmoType() == Ammo->GetAmmoType())
+	{
+		if (EquippedWeapon->GetAmmoAmount() == 0)
+		{
+			ReloadWeapon();
+		}
+	}
+
+	Ammo->Destroy();
 }
 
 bool AShooterCharacter::CarryingAmmo()
@@ -782,10 +805,16 @@ void AShooterCharacter::GetPickUpItem(AItemActor* Item)
 	}
 
 	auto Weapon = Cast<AWeapon>(Item);
+	auto Ammo = Cast<AAmmo>(Item);
 
 	if (Weapon)
 	{
 		SwapWeapon(Weapon);
+	}
+
+	if (Ammo)
+	{
+		PickUpAmmo(Ammo);
 	}
 }
 
