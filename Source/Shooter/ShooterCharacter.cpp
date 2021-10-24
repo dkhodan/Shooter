@@ -273,11 +273,8 @@ void AShooterCharacter::StopAiming()
 
 void AShooterCharacter::PickUpAmmo(AAmmo* Ammo)
 {
-	UE_LOG(LogTemp, Warning, TEXT("PickUpAmmo() call!"));
 	if (auto AmmoCount = AmmoMap.Find(Ammo->GetAmmoType()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AmmoCount: %f"), *AmmoCount);
-
 		*AmmoCount += Ammo->GetItemCount();
 		AmmoMap[Ammo->GetAmmoType()] = *AmmoCount;
 	}
