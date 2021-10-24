@@ -61,7 +61,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-private:
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess="true"))
 	class UBoxComponent* CollisionBox;
 
