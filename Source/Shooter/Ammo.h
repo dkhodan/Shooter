@@ -14,6 +14,8 @@ class SHOOTER_API AAmmo : public AItemActor
 public:
 	AAmmo();
 	virtual void Tick(float DeltaTime) override;
+	virtual void EnableCustomDepth() override;
+	virtual void DisableCustomDepth() override;
 
 protected:
 	virtual void BeginPlay() override;

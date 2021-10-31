@@ -735,6 +735,7 @@ void AShooterCharacter::TraceForItems()
 			if (TraceHitItem)
 			{
 				TraceHitItem->GetPickUpWidget()->SetVisibility(true);
+				TraceHitItem->EnableCustomDepth();
 			}
 
 			if (LastOverlappedItem)
@@ -742,6 +743,7 @@ void AShooterCharacter::TraceForItems()
 				if (TraceHitItem != LastOverlappedItem)
 				{
 					LastOverlappedItem->GetPickUpWidget()->SetVisibility(false);
+					LastOverlappedItem->DisableCustomDepth();
 				}
 			}
 
@@ -753,6 +755,7 @@ void AShooterCharacter::TraceForItems()
 		if (LastOverlappedItem)
 		{
 			LastOverlappedItem->GetPickUpWidget()->SetVisibility(false);
+			LastOverlappedItem->DisableCustomDepth();
 		}
 	}
 }

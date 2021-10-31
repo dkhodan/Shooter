@@ -69,10 +69,15 @@ protected:
 
 	void PlayPickUpSound();
 
+	virtual void InitializeCustomDepth();
+	virtual void OnConstruction(const FTransform& Transform) override;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	void PlayEquipSound();
+	virtual void EnableCustomDepth();
+	virtual void DisableCustomDepth();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess="true"))
@@ -163,6 +168,18 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	int32 InterpLocationIndex;
+
+	// index for the material we like to change at runtime (dynamic material instance)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	int32 MaterialIndex;
+
+	/* Dynamic Instance that we can change in runtime */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UMaterialInstanceDynamic* DynamicMaterialInstance;
+
+	/* Material instance used with a dynamic material */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UMaterialInstance* MaterialInstance;
 
 public:
 

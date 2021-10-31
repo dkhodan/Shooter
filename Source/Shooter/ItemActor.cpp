@@ -23,7 +23,8 @@ AItemActor::AItemActor() :
 	ItemInterpY(0.f),
 	InterpInitialYawOffset(0.f),
 	ItemType(EItemType::EIT_Ammo),
-	InterpLocationIndex(0)
+	InterpLocationIndex(0),
+	MaterialIndex(0)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -57,6 +58,9 @@ void AItemActor::BeginPlay()
 	if (PickUpWidget) SetActiveStars();
 
 	SetItemProperties(ItemState);
+
+	// Set Custom Depth to disabled
+	InitializeCustomDepth();
 }
 
 void AItemActor::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -284,6 +288,30 @@ void AItemActor::PlayPickUpSound()
 		{
 			UGameplayStatics::PlaySound2D(this, PickUpSound);
 		}
+	}
+}
+
+void AItemActor::EnableCustomDepth()
+{
+	ItemMesh->SetRenderCustomDepth(true);
+}
+
+void AItemActor::DisableCustomDepth()
+{
+	ItemMesh->SetRenderCustomDepth(false);
+}
+
+void AItemActor::InitializeCustomDepth()
+{
+	DisableCustomDepth();
+}
+
+void AItemActor::OnConstruction(const FTransform& Transform)
+{
+	if (MaterialInstance)
+	{
+		DynamicMaterialInstance = UMaterialInstanceDynamic::Create(MaterialInstance, this); 
+		ItemMesh->SetMaterial(MaterialIndex, MaterialInstance);
 	}
 }
 
