@@ -129,6 +129,7 @@ void AShooterCharacter::BeginPlay()
 
 	// spawn default weapon and attach it to the mesh
 	EquipWeapon(SpawnDefaultEquippedWeapon());
+	
 
 	// initialize default ammount of ammo
 	InitializeAmmoMap();
@@ -810,6 +811,8 @@ void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquip)
 
 		EquippedWeapon = WeaponToEquip;
 		EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
+		EquippedWeapon->DisableCustomDepth();
+		EquippedWeapon->DisableGlowMaterial();
 	}
 }
 

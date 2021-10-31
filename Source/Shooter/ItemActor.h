@@ -71,6 +71,7 @@ protected:
 
 	virtual void InitializeCustomDepth();
 	virtual void OnConstruction(const FTransform& Transform) override;
+	void UpdateCurvePulse();
 
 public:	
 	// Called every frame
@@ -78,6 +79,8 @@ public:
 	void PlayEquipSound();
 	virtual void EnableCustomDepth();
 	virtual void DisableCustomDepth();
+	void EnableGlowMaterial();
+	void DisableGlowMaterial();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess="true"))
@@ -180,6 +183,31 @@ protected:
 	/* Material instance used with a dynamic material */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	UMaterialInstance* MaterialInstance;
+
+	bool bCanChangeCustomDepth;
+
+	// section for dynamic material pulse curve
+
+	/* Curve to drive the dynamic material parameters */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	class UCurveVector* PulseCurve;
+
+	FTimerHandle PulseCurveTimer;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float PulseCurveTime;
+
+	UPROPERTY(VisibleAnywhere, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float GlowAmmount;
+
+	UPROPERTY(VisibleAnywhere, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float FresnelExponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float FresnelReflectFraction;
+
+	void ResetPulseTimer();
+	void StartPulseTimer();
 
 public:
 
