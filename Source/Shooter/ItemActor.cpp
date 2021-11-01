@@ -30,7 +30,8 @@ AItemActor::AItemActor() :
 	GlowAmmount(150.f),
 	FresnelExponent(3.f),
 	FresnelReflectFraction(4.f),
-	PulseCurveTime(5.f)
+	PulseCurveTime(5.f),
+	SlotIndex(0)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -174,6 +175,7 @@ void AItemActor::SetItemProperties(EItemState State)
 	case EItemState::EIS_Falling:
 		ItemMesh->SetSimulatePhysics(true);
 		ItemMesh->SetEnableGravity(true);
+		ItemMesh->SetVisibility(true);
 		ItemMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		ItemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		ItemMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
@@ -202,6 +204,24 @@ void AItemActor::SetItemProperties(EItemState State)
 		CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		break;
+
+	case EItemState::EIS_PickedUp:
+		PickUpWidget->SetVisibility(false);
+
+		ItemMesh->SetSimulatePhysics(false);
+		ItemMesh->SetEnableGravity(false);
+		ItemMesh->SetVisibility(false);
+		ItemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		PickUpWidget->SetVisibility(false);
+
+		// Set AreaSpehere properties
+		AreaSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
 	}
 }
 
@@ -213,7 +233,6 @@ void AItemActor::FinishInterping()
 		// some garbage shit that need to be refactored in future. TODO: rid of this shit and refactor
 		Character->IncrementInterpLocationItemCount(InterpLocationIndex, -1);
 		Character->GetPickUpItem(this);
-		SetItemState(EItemState::EIS_PickedUp);
 	}
 
 	// Set scale back to normal

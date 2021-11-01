@@ -5,6 +5,8 @@
 #include "AmmoType.h"
 #include "ShooterCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEquipItemDelegate, int32, CurrentSlotIndex, int32, NewSlotIndex);
+
 UENUM(BlueprintType)
 enum class ECombatState : uint8
 {
@@ -59,6 +61,16 @@ protected:
 	void Aim();
 	void StopAiming();
 	void PickUpAmmo(class AAmmo* Ammo);
+
+	// TODO: terrible stuff that must be re-writed
+	void FKeyPressed();
+	void OneKeyPressed();
+	void TwoKeyPressed();
+	void ThreeKeyPressed();
+	void FourKeyPressed();
+	void FiveKeyPressed();
+
+	void ExchangeInventoryItems(int32 CurrentItemIndex, int32 NewItemIndex);
 
 	UFUNCTION()
 	void AutoFireReset();
@@ -365,8 +377,11 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TArray<AItemActor*> Inventory;
 
-
 	const int32 INVENTORY_CAPACITY{ 6 };
+
+	// Delegate for sending slot information for InvetoryBar when equipping
+	UPROPERTY(BlueprintAssignable , Category = "Delegates", meta = (AllowPrivateAccess = "true"))
+	FEquipItemDelegate EquipItemDelegate;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

@@ -219,6 +219,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	UTexture2D* AmmoIcon;
 
+	// index from the inventory (InventoryBar)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	int32 SlotIndex;
+
 	void ResetPulseTimer();
 	void StartPulseTimer();
 
@@ -239,6 +243,10 @@ public:
 	FORCEINLINE USoundCue* GetEquipSound() const { return EquipSound; }
 
 	FORCEINLINE int32 GetItemCount() const { return BulletsAmount; }
+
+	FORCEINLINE int32 GetSlotIndex() const { return SlotIndex; }
+
+	FORCEINLINE void SetSlotIndex(int32 Index) { SlotIndex = Index; }
 	
 	void SetItemState(EItemState State);
 
