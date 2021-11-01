@@ -210,6 +210,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	UCurveVector* InterpMaterialPulseCurve;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UTexture2D* IconBackground;
 
 	void ResetPulseTimer();
 	void StartPulseTimer();

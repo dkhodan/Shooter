@@ -361,6 +361,13 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Items", meta = (AllowPrivateAccess = "true"))
 	float EquipSoundResetTime;
 
+	// Array of AItems for an inventory
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	TArray<AItemActor*> Inventory;
+
+
+	const int32 INVENTORY_CAPACITY{ 6 };
+
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 

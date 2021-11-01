@@ -129,7 +129,7 @@ void AShooterCharacter::BeginPlay()
 
 	// spawn default weapon and attach it to the mesh
 	EquipWeapon(SpawnDefaultEquippedWeapon());
-	
+	Inventory.Add(EquippedWeapon);
 
 	// initialize default ammount of ammo
 	InitializeAmmoMap();
@@ -882,7 +882,15 @@ void AShooterCharacter::GetPickUpItem(AItemActor* Item)
 
 	if (Weapon)
 	{
-		SwapWeapon(Weapon);
+		if (Inventory.Num() < INVENTORY_CAPACITY)
+		{
+			Inventory.Add(Weapon);
+		}
+		// inventory full
+		else
+		{
+			SwapWeapon(Weapon);
+		}
 	}
 
 	if (Ammo)
