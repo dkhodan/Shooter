@@ -213,6 +213,7 @@ void AItemActor::FinishInterping()
 		// some garbage shit that need to be refactored in future. TODO: rid of this shit and refactor
 		Character->IncrementInterpLocationItemCount(InterpLocationIndex, -1);
 		Character->GetPickUpItem(this);
+		SetItemState(EItemState::EIS_PickedUp);
 	}
 
 	// Set scale back to normal
@@ -336,17 +337,33 @@ void AItemActor::OnConstruction(const FTransform& Transform)
 
 void AItemActor::UpdateCurvePulse()
 {
-	if (ItemState != EItemState::EIS_Pickup) return;
+	float ElapsedTime{};
+	FVector CurveValue{};
 
-	const float ElapsedTime = GetWorldTimerManager().GetTimerElapsed(PulseCurveTimer);
-
-	if (PulseCurve && DynamicMaterialInstance)
+	switch (ItemState)
 	{
-		const FVector CurveValue = PulseCurve->GetVectorValue(ElapsedTime);
-		DynamicMaterialInstance->SetScalarParameterValue(TEXT("GlowAmount"), CurveValue.X * GlowAmmount);
-		DynamicMaterialInstance->SetScalarParameterValue(TEXT("FresnelExponent"), CurveValue.Y * FresnelExponent);
-		DynamicMaterialInstance->SetScalarParameterValue(TEXT("FresnelReflectFraction"), CurveValue.Z * FresnelReflectFraction);
+	case EItemState::EIS_Pickup:
+		if (PulseCurve)
+		{
+			ElapsedTime = GetWorldTimerManager().GetTimerElapsed(PulseCurveTimer);
+			CurveValue = PulseCurve->GetVectorValue(ElapsedTime);
+		}
+		break;
+
+	case EItemState::EIS_EquipInterping:
+		if (InterpMaterialPulseCurve)
+		{
+			ElapsedTime = GetWorldTimerManager().GetTimerElapsed(ItemInterpTimer);
+			CurveValue = InterpMaterialPulseCurve->GetVectorValue(ElapsedTime);
+		}
+		break;
 	}
+
+	if (!DynamicMaterialInstance) return;
+
+	DynamicMaterialInstance->SetScalarParameterValue(TEXT("GlowAmount"), CurveValue.X * GlowAmmount);
+	DynamicMaterialInstance->SetScalarParameterValue(TEXT("FresnelExponent"), CurveValue.Y * FresnelExponent);
+	DynamicMaterialInstance->SetScalarParameterValue(TEXT("FresnelReflectFraction"), CurveValue.Z * FresnelReflectFraction);
 }
 
 void AItemActor::EnableGlowMaterial()
@@ -420,6 +437,7 @@ void AItemActor::StartItemCurve(AShooterCharacter* Char)
 	ItemInterpStartLocation = GetActorLocation();
 	bIsInterping = true;
 	SetItemState(EItemState::EIS_EquipInterping);
+	GetWorldTimerManager().ClearTimer(PulseCurveTimer);
 
 	GetWorldTimerManager().SetTimer(ItemInterpTimer, this, &AItemActor::FinishInterping, ZCurveTime);
 
