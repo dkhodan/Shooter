@@ -753,11 +753,8 @@ void AShooterCharacter::TraceForItems()
 	}
 	else if (LastOverlappedItem)
 	{
-		if (LastOverlappedItem)
-		{
-			LastOverlappedItem->GetPickUpWidget()->SetVisibility(false);
-			LastOverlappedItem->DisableCustomDepth();
-		}
+		LastOverlappedItem->GetPickUpWidget()->SetVisibility(false);
+		LastOverlappedItem->DisableCustomDepth();
 	}
 }
 

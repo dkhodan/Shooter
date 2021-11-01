@@ -217,10 +217,10 @@ void AItemActor::FinishInterping()
 
 	// Set scale back to normal
 	SetActorScale3D(FVector(1.f));
+	
 	DisableGlowMaterial();
-	DisableCustomDepth();
-
 	bCanChangeCustomDepth = true;
+	DisableCustomDepth();
 }
 
 void AItemActor::ItemInterp(float DeltaTime)
@@ -305,12 +305,18 @@ void AItemActor::PlayPickUpSound()
 
 void AItemActor::EnableCustomDepth()
 {
-	if(bCanChangeCustomDepth) ItemMesh->SetRenderCustomDepth(true);
+	if (bCanChangeCustomDepth)
+	{
+		ItemMesh->SetRenderCustomDepth(true);
+	}
 }
 
 void AItemActor::DisableCustomDepth()
 {
-	if (bCanChangeCustomDepth) ItemMesh->SetRenderCustomDepth(false);
+	if (bCanChangeCustomDepth)
+	{
+		ItemMesh->SetRenderCustomDepth(false);
+	}
 }
 
 void AItemActor::InitializeCustomDepth()
@@ -323,7 +329,7 @@ void AItemActor::OnConstruction(const FTransform& Transform)
 	if (MaterialInstance)
 	{
 		DynamicMaterialInstance = UMaterialInstanceDynamic::Create(MaterialInstance, this); 
-		ItemMesh->SetMaterial(MaterialIndex, MaterialInstance);
+		ItemMesh->SetMaterial(MaterialIndex, DynamicMaterialInstance);
 	}
 	EnableGlowMaterial();
 }
@@ -337,7 +343,7 @@ void AItemActor::UpdateCurvePulse()
 	if (PulseCurve && DynamicMaterialInstance)
 	{
 		const FVector CurveValue = PulseCurve->GetVectorValue(ElapsedTime);
-		DynamicMaterialInstance->SetScalarParameterValue(TEXT("GlowAmmount"), CurveValue.X * GlowAmmount);
+		DynamicMaterialInstance->SetScalarParameterValue(TEXT("GlowAmount"), CurveValue.X * GlowAmmount);
 		DynamicMaterialInstance->SetScalarParameterValue(TEXT("FresnelExponent"), CurveValue.Y * FresnelExponent);
 		DynamicMaterialInstance->SetScalarParameterValue(TEXT("FresnelReflectFraction"), CurveValue.Z * FresnelReflectFraction);
 	}
