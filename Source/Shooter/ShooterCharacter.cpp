@@ -131,6 +131,7 @@ void AShooterCharacter::BeginPlay()
 	EquipWeapon(SpawnDefaultEquippedWeapon());
 	Inventory.Add(EquippedWeapon);
 	EquippedWeapon->SetSlotIndex(0);
+	EquippedWeapon->SetCharacter(this);
 
 	// initialize default ammount of ammo
 	InitializeAmmoMap();
@@ -248,6 +249,11 @@ void AShooterCharacter::ReloadWeapon()
 			AnimInstance->Montage_JumpToSection(EquippedWeapon->GetReloadMontageSection());
 		}
 	}
+}
+
+void AShooterCharacter::FinishEquipping()
+{
+	CombatState = ECombatState::ECS_Unoccupied;
 }
 
 
@@ -682,12 +688,24 @@ void AShooterCharacter::ExchangeInventoryItems(int32 CurrentItemIndex, int32 New
 	if (CurrentItemIndex == NewItemIndex || (NewItemIndex >= Inventory.Num()) || 
 		GetCombatState() != ECombatState::ECS_Unoccupied) return;
 
+	CombatState = ECombatState::ECS_Equipping;
 	auto OldEquippedWeapon = EquippedWeapon;
 	auto NewWeapon = Cast<AWeapon>(Inventory[NewItemIndex]);
 	EquipWeapon(NewWeapon);
 
 	OldEquippedWeapon->SetItemState(EItemState::EIS_PickedUp);
 	NewWeapon->SetItemState(EItemState::EIS_Equipped);
+
+	// character combat state
+	CombatState = ECombatState::ECS_Equipping;
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	if (AnimInstance && EquipMontage)
+	{
+		AnimInstance->Montage_Play(EquipMontage, 1.f);
+		AnimInstance->Montage_JumpToSection(FName("Equip"));
+		NewWeapon->PlayEquipSound(true);
+	}
 }
 
 void AShooterCharacter::AutoFireReset()
@@ -856,7 +874,7 @@ void AShooterCharacter::SelectButtonPressed()
 
 	if (TraceHitItem)
 	{
-		TraceHitItem->StartItemCurve(this);
+		TraceHitItem->StartItemCurve(this, true);
 		TraceHitItem = nullptr;
 	}
 }

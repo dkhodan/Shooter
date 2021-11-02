@@ -67,7 +67,7 @@ protected:
 
 	FVector GetInterpLocation();
 
-	void PlayPickUpSound();
+	void PlayPickUpSound(bool bForcePlaySound = false);
 
 	virtual void InitializeCustomDepth();
 	virtual void OnConstruction(const FTransform& Transform) override;
@@ -76,7 +76,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	void PlayEquipSound();
+	void PlayEquipSound(bool bForcePlaySound = false);
 	virtual void EnableCustomDepth();
 	virtual void DisableCustomDepth();
 	void EnableGlowMaterial();
@@ -247,9 +247,11 @@ public:
 	FORCEINLINE int32 GetSlotIndex() const { return SlotIndex; }
 
 	FORCEINLINE void SetSlotIndex(int32 Index) { SlotIndex = Index; }
+
+	FORCEINLINE void SetCharacter(AShooterCharacter* Char) { Character = Char; }
 	
 	void SetItemState(EItemState State);
 
 	// Called from the AShooterCharacter class
-	void StartItemCurve(AShooterCharacter* Char);
+	void StartItemCurve(AShooterCharacter* Char, bool bForcePlaySound = false);
 };

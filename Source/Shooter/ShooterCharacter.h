@@ -13,6 +13,7 @@ enum class ECombatState : uint8
 	ECS_Unoccupied UMETA(DisplayName = "Unoccupied"),
 	ECS_FireTimerInProgress UMETA(DisplayName = "FireTimerInProgress"),
 	ECS_Reloading UMETA(DisplayName = "Reloading"),
+	ECS_Equipping UMETA(DisplayName = "Equipping"),
 
 	ECS_MAX UMETA(DisplayName = "Default MAX")
 };
@@ -117,6 +118,9 @@ protected:
 	void ReloadButtonPressed();
 	void ReloadWeapon();
 
+	UFUNCTION(BlueprintCallable)
+	void FinishEquipping();
+
 	// check to see if we have ammo of equipped weapon ammo type
 	bool CarryingAmmo();
 
@@ -137,6 +141,8 @@ protected:
 
 	void ResetPickupSoundTimer();
 	void ResetEquipSoundTimer();
+
+
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -382,6 +388,9 @@ private:
 	// Delegate for sending slot information for InvetoryBar when equipping
 	UPROPERTY(BlueprintAssignable , Category = "Delegates", meta = (AllowPrivateAccess = "true"))
 	FEquipItemDelegate EquipItemDelegate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* EquipMontage;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

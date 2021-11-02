@@ -311,9 +311,16 @@ FVector AItemActor::GetInterpLocation()
 	return FVector();
 }
 
-void AItemActor::PlayPickUpSound()
+void AItemActor::PlayPickUpSound(bool bForcePlaySound)
 {
-	if (Character && Character->ShouldPlayPickUpSound())
+	if (Character && bForcePlaySound)
+	{
+		if (PickUpSound)
+		{
+			UGameplayStatics::PlaySound2D(this, PickUpSound);
+		}
+	}
+	else if (Character && Character->ShouldPlayPickUpSound())
 	{
 		Character->StartPickSoundTime();
 		if (PickUpSound)
@@ -401,9 +408,15 @@ void AItemActor::DisableGlowMaterial()
 	}
 }
 
-void AItemActor::PlayEquipSound()
+void AItemActor::PlayEquipSound(bool bForcePlaySound)
 {
-	if (Character && Character->ShouldPLayEquipSound())
+	if (!Character) return;
+
+	if (bForcePlaySound && EquipSound)
+	{
+		UGameplayStatics::PlaySound2D(this, EquipSound);
+	}
+	else if (Character->ShouldPLayEquipSound())
 	{
 		Character->StartEquipSoundTimer();
 		if (EquipSound)
@@ -442,7 +455,7 @@ void AItemActor::SetItemState(EItemState State)
 	SetItemProperties(State);
 }
 
-void AItemActor::StartItemCurve(AShooterCharacter* Char)
+void AItemActor::StartItemCurve(AShooterCharacter* Char, bool bForcePlaySound)
 {
 	// Store handle to the Character
 	Character = Char;
@@ -451,7 +464,7 @@ void AItemActor::StartItemCurve(AShooterCharacter* Char)
 	InterpLocationIndex = Character->GetInterpLocationIndex();
 	Character->IncrementInterpLocationItemCount(InterpLocationIndex, 1);
 
-	PlayPickUpSound();
+	PlayPickUpSound(bForcePlaySound);
 
 	ItemInterpStartLocation = GetActorLocation();
 	bIsInterping = true;
