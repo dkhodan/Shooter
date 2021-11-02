@@ -31,7 +31,8 @@ AItemActor::AItemActor() :
 	FresnelExponent(3.f),
 	FresnelReflectFraction(4.f),
 	PulseCurveTime(5.f),
-	SlotIndex(0)
+	SlotIndex(0),
+	bInvetoryFull(false)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -92,6 +93,7 @@ void AItemActor::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		if (ShooterCharacter)
 		{
 			ShooterCharacter->IncrementOverlappedItemCounter(-1);
+			ShooterCharacter->UnhighlightInventorySlot();
 		}
 	}
 }
@@ -233,6 +235,8 @@ void AItemActor::FinishInterping()
 		// some garbage shit that need to be refactored in future. TODO: rid of this shit and refactor
 		Character->IncrementInterpLocationItemCount(InterpLocationIndex, -1);
 		Character->GetPickUpItem(this);
+
+		Character->UnhighlightInventorySlot();
 	}
 
 	// Set scale back to normal

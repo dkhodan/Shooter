@@ -6,6 +6,7 @@
 #include "ShooterCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEquipItemDelegate, int32, CurrentSlotIndex, int32, NewSlotIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHighlightIconDelegate, int32, SlotIndex, bool, bStartAnimation);
 
 UENUM(BlueprintType)
 enum class ECombatState : uint8
@@ -91,7 +92,7 @@ protected:
 
 	void TraceForItems();
 
-	void EquipWeapon(class AWeapon* WeaponToEquip);
+	void EquipWeapon(class AWeapon* WeaponToEquip, bool bSwapping = false);
 
 	AWeapon* SpawnDefaultEquippedWeapon();
 
@@ -142,11 +143,14 @@ protected:
 	void ResetPickupSoundTimer();
 	void ResetEquipSoundTimer();
 
+	int32 GetEmptyInventorySlot();
 
+	void HighlightInventorySlot();
 
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	void UnhighlightInventorySlot();
 
 private:
 
@@ -388,6 +392,13 @@ private:
 	// Delegate for sending slot information for InvetoryBar when equipping
 	UPROPERTY(BlueprintAssignable , Category = "Delegates", meta = (AllowPrivateAccess = "true"))
 	FEquipItemDelegate EquipItemDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = "Delegates", meta = (AllowPrivateAccess = "true"))
+	FHighlightIconDelegate HighlightIconDelegate;
+
+	/* Index for currently highlighted slot */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	int32 HighlightedSlot;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items", meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* EquipMontage;

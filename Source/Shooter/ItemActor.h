@@ -223,6 +223,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	int32 SlotIndex;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	bool bInvetoryFull;
+
 	void ResetPulseTimer();
 	void StartPulseTimer();
 
@@ -249,6 +252,8 @@ public:
 	FORCEINLINE void SetSlotIndex(int32 Index) { SlotIndex = Index; }
 
 	FORCEINLINE void SetCharacter(AShooterCharacter* Char) { Character = Char; }
+
+	FORCEINLINE void SetInventoryFull(bool bFull) { bInvetoryFull = bFull; }
 	
 	void SetItemState(EItemState State);
 
