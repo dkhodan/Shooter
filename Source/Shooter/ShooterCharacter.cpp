@@ -136,7 +136,7 @@ void AShooterCharacter::BeginPlay()
 	EquippedWeapon->SetSlotIndex(0);
 	EquippedWeapon->SetCharacter(this);
 
-	// initialize default ammount of ammo
+	// initialize default amount of ammo
 	InitializeAmmoMap();
 
 	GetCharacterMovement()->MaxWalkSpeed = BaseMovementSpeed;

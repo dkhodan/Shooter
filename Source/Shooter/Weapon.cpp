@@ -66,6 +66,58 @@ void AWeapon::StopFalling()
 	StartPulseTimer();
 }
 
+void AWeapon::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	const FString WeaponTablePath(TEXT("DataTable'/Game/Game/DataTable/WeaponDataTable.WeaponDataTable'"));
+	UDataTable* WeaponTableObject = Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *WeaponTablePath));
+
+	if (!WeaponTableObject) return;
+
+	FWeaponDataTable* WeaponDataRow = nullptr;
+
+	switch (WeaponType)
+	{
+	case EWeaponType::EWT_SubmachineGun:
+		WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("SubmachineGun"), TEXT(""));
+		break;
+
+	case EWeaponType::EWT_AssaultRifle:
+		WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("AssaultRifle"), TEXT(""));
+		break;
+	}
+
+	if (WeaponDataRow)
+	{
+		AmmoType = WeaponDataRow->AmmoType;
+		Ammo = WeaponDataRow->WeaponAmmo;
+		MagazineCapacity = WeaponDataRow->MagazineCapacity;
+		PickUpSound = WeaponDataRow->PickUpSound;
+		EquipSound = WeaponDataRow->EquipSound;
+		GetItemMesh()->SetSkeletalMesh(WeaponDataRow->ItemMesh);
+		ItemName = WeaponDataRow->WeaponName;
+		AmmoIcon = WeaponDataRow->AmmoIcon;
+		ItemIcon = WeaponDataRow->InventoryIcon;
+
+		MaterialInstance = WeaponDataRow->MaterialInstance;
+
+		// clear previous material index and material itself
+		PreviousMaterialIndex = MaterialIndex;
+		ItemMesh->SetMaterial(PreviousMaterialIndex, nullptr);
+
+		MaterialIndex = WeaponDataRow->MaterialIndex;
+	}
+
+	if (MaterialInstance)
+	{
+		DynamicMaterialInstance = UMaterialInstanceDynamic::Create(MaterialInstance, this);
+		DynamicMaterialInstance->SetVectorParameterValue(TEXT("FresnelColor"), GlowColor);
+		ItemMesh->SetMaterial(MaterialIndex, DynamicMaterialInstance);
+		EnableGlowMaterial();
+	}
+}
+
 void AWeapon::ReloadAmmo(int32 Amount)
 {
 	checkf(Ammo + Amount <= MagazineCapacity, TEXT("Attempted to reload with more then magazine capacity!"));
