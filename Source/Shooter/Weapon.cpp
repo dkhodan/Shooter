@@ -86,6 +86,9 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 	case EWeaponType::EWT_AssaultRifle:
 		WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("AssaultRifle"), TEXT(""));
 		break;
+	case EWeaponType::EWT_Pistol:
+		WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("Pistol"), TEXT(""));
+		break;
 	}
 
 	if (WeaponDataRow)
@@ -115,6 +118,9 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 		MuzzleFlash = WeaponDataRow->MuzzleFlash;
 		FireSound = WeaponDataRow->FireSound;
 
+		// pistol
+		BoneToHide = WeaponDataRow->BoneToHide;
+
 		MaterialInstance = WeaponDataRow->MaterialInstance;
 
 		// clear previous material index and material itself
@@ -130,6 +136,16 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 		DynamicMaterialInstance->SetVectorParameterValue(TEXT("FresnelColor"), GlowColor);
 		ItemMesh->SetMaterial(MaterialIndex, DynamicMaterialInstance);
 		EnableGlowMaterial();
+	}
+}
+
+void AWeapon::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (BoneToHide != FName(""))
+	{
+		GetItemMesh()->HideBoneByName(BoneToHide, EPhysBodyOp::PBO_None);
 	}
 }
 
