@@ -103,6 +103,18 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 		ReloadMontageSection = WeaponDataRow->ReloadMontageSection;
 		GetItemMesh()->SetAnimInstanceClass(WeaponDataRow->AnimBP);
 
+		// set crosshairs
+		CrosshairsMiddle = WeaponDataRow->CrosshairsMiddle;
+		CrosshairsLeft = WeaponDataRow->CrosshairsLeft;
+		CrosshairsRight = WeaponDataRow->CrosshairsRight;
+		CrosshairsBottom = WeaponDataRow->CrosshairsBottom;
+		CrosshairsTop = WeaponDataRow->CrosshairsTop;
+
+		// weapon metadata
+		AutoFireRate = WeaponDataRow->AutoFireRate;
+		MuzzleFlash = WeaponDataRow->MuzzleFlash;
+		FireSound = WeaponDataRow->FireSound;
+
 		MaterialInstance = WeaponDataRow->MaterialInstance;
 
 		// clear previous material index and material itself

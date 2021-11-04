@@ -198,12 +198,6 @@ private:
 	float MouseAimingLookUpRate;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	class USoundCue* FireSound;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	class UParticleSystem* MuzzleFlash;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	UParticleSystem* ImpactParticle;
 
 	// Smoke trail for bullets
@@ -254,9 +248,6 @@ private:
 	bool bIsFireButtonPressed;
 
 	bool bShouldFire;
-
-	// Rate of automatic gunfire. How much seconds between bullets
-	float AutomaticFireRate;
 
 	// Timer between gunshots
 	FTimerHandle AutoFireTimer;

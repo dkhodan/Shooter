@@ -40,7 +40,6 @@ AShooterCharacter::AShooterCharacter() :
 	MouseAimingLookUpRate(0.2f),
 	ShootTimeDuration(0.05f),
 	bIsFire(false),
-	AutomaticFireRate(0.1f),
 	bShouldFire(true),
 	bIsFireButtonPressed(false),
 	bShouldTraceForItems(false),
@@ -176,9 +175,9 @@ bool AShooterCharacter::WeaponHasAmmo()
 
 void AShooterCharacter::PlayFireSound()
 {
-	if (FireSound)
+	if (EquippedWeapon && EquippedWeapon->GetFireSound())
 	{
-		UGameplayStatics::PlaySound2D(this, FireSound);
+		UGameplayStatics::PlaySound2D(this, EquippedWeapon->GetFireSound());
 	}
 }
 
@@ -191,7 +190,7 @@ void AShooterCharacter::SendBullet()
 	{
 		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(EquippedWeapon->GetItemMesh());
 
-		if (MuzzleFlash)
+		if (auto MuzzleFlash = EquippedWeapon->GetMuzzleFlash())
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
 		}
@@ -633,7 +632,7 @@ void AShooterCharacter::FireButtonReleased()
 void AShooterCharacter::StartFireTimer()
 {
 	CombatState = ECombatState::ECS_FireTimerInProgress;
-	GetWorldTimerManager().SetTimer(AutoFireTimer, this, &AShooterCharacter::AutoFireReset, AutomaticFireRate);
+	GetWorldTimerManager().SetTimer(AutoFireTimer, this, &AShooterCharacter::AutoFireReset, EquippedWeapon->GetAutoFireRate());
 }
 
 bool AShooterCharacter::TraceUnderCrosshairs(FHitResult& OutHit, FVector& OutHitLocation)
