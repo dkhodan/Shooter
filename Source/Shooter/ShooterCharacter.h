@@ -414,6 +414,8 @@ public:
 
 	FORCEINLINE bool IsCrouching() const { return bCrouching; }
 
+	FORCEINLINE AWeapon* GetEquippedWeapon() const { return EquippedWeapon; }
+
 	FInterpLocation GetInterpLocationByIndex(int32 Index);
 
 	FORCEINLINE bool ShouldPlayPickUpSound() const { return bShouldPlayPickupSound; }

@@ -99,6 +99,9 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 		ItemName = WeaponDataRow->WeaponName;
 		AmmoIcon = WeaponDataRow->AmmoIcon;
 		ItemIcon = WeaponDataRow->InventoryIcon;
+		ClipBoneName = WeaponDataRow->ClipBoneName;
+		ReloadMontageSection = WeaponDataRow->ReloadMontageSection;
+		GetItemMesh()->SetAnimInstanceClass(WeaponDataRow->AnimBP);
 
 		MaterialInstance = WeaponDataRow->MaterialInstance;
 
