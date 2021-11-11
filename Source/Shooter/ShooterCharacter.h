@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AmmoType.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 #include "ShooterCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEquipItemDelegate, int32, CurrentSlotIndex, int32, NewSlotIndex);
@@ -146,6 +147,9 @@ protected:
 	int32 GetEmptyInventorySlot();
 
 	void HighlightInventorySlot();
+	
+	UFUNCTION(BlueprintCallable)
+	EPhysicalSurface GetSurfaceType();
 
 public:	
 	virtual void Tick(float DeltaTime) override;

@@ -16,6 +16,7 @@
 #include "ItemActor.h"
 #include "Weapon.h"
 #include "Ammo.h"
+#include "Shooter.h"
 
 
 AShooterCharacter::AShooterCharacter() :
@@ -478,6 +479,21 @@ void AShooterCharacter::HighlightInventorySlot()
 	const int32 EmptySlot = GetEmptyInventorySlot();
 	HighlightIconDelegate.Broadcast(EmptySlot, true);
 	HighlightedSlot = EmptySlot;
+}
+
+EPhysicalSurface AShooterCharacter::GetSurfaceType()
+{
+	FHitResult SurfaceHitResult;
+
+	const FVector Start = GetActorLocation();
+	const FVector End = Start + FVector(0.f, 0.f, -400.f);
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.bReturnPhysicalMaterial = true;
+
+	GetWorld()->LineTraceSingleByChannel(SurfaceHitResult, Start, End, ECollisionChannel::ECC_Visibility, QueryParams);
+	
+	return UPhysicalMaterial::DetermineSurfaceType(SurfaceHitResult.PhysMaterial.Get());
 }
 
 void AShooterCharacter::UnhighlightInventorySlot()
