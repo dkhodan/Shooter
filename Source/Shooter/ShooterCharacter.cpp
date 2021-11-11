@@ -145,7 +145,6 @@ void AShooterCharacter::BeginPlay()
 
 void AShooterCharacter::SwapWeapon(AWeapon* WeaponToSwap)
 {
-
 	if (Inventory.Num() - 1 >= EquippedWeapon->GetSlotIndex())
 	{
 		Inventory[EquippedWeapon->GetSlotIndex()] = WeaponToSwap;
@@ -256,6 +255,8 @@ void AShooterCharacter::ReloadWeapon()
 void AShooterCharacter::FinishEquipping()
 {
 	CombatState = ECombatState::ECS_Unoccupied;
+
+	if (bAimingButtonPressed) Aim();
 }
 
 
@@ -583,7 +584,7 @@ bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, 
 void AShooterCharacter::AimingButtonPressed()
 {
 	bAimingButtonPressed = true;
-	if (CombatState != ECombatState::ECS_Reloading)
+	if (CombatState != ECombatState::ECS_Reloading && CombatState != ECombatState::ECS_Equipping)
 	{
 		Aim();
 	}
@@ -721,6 +722,9 @@ void AShooterCharacter::FiveKeyPressed()
 
 void AShooterCharacter::ExchangeInventoryItems(int32 CurrentItemIndex, int32 NewItemIndex)
 {
+	
+	if (bIsAiming) StopAiming();
+
 	const bool bCanExchangeItem = (CurrentItemIndex != NewItemIndex) && NewItemIndex < Inventory.Num();
 	const bool bCheckCombatState = (CombatState == ECombatState::ECS_Unoccupied || CombatState == ECombatState::ECS_Equipping);
 
@@ -753,7 +757,7 @@ void AShooterCharacter::AutoFireReset()
 
 	if (WeaponHasAmmo())
 	{
-		if (bIsFireButtonPressed) FireWeapon();
+		if (bIsFireButtonPressed && EquippedWeapon->GetAutomatic()) FireWeapon();
 	}
 	else
 	{

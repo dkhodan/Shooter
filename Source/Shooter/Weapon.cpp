@@ -14,7 +14,8 @@ AWeapon::AWeapon() :
 	SlideDisplacementTime(0.5f),
 	bMovingSlide(false),
 	MaxSlideDisplacement(4.f),
-	MaxRecoilRotation(20.f)
+	MaxRecoilRotation(20.f),
+	bAutomatic(true)
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -135,6 +136,8 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 		ItemMesh->SetMaterial(PreviousMaterialIndex, nullptr);
 
 		MaterialIndex = WeaponDataRow->MaterialIndex;
+
+		bAutomatic = WeaponDataRow->bAutomatic;
 	}
 
 	if (MaterialInstance)

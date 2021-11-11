@@ -82,6 +82,9 @@ struct FWeaponDataTable : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName BoneToHide;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bAutomatic;
 };
 
 UCLASS()
@@ -189,6 +192,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pistol", meta = (AllowPrivateAccess = "true"))
 	float RecoilRotation;
 
+	// true - for autogun
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	bool bAutomatic;
+
 public:
 	// Add impulse to the weapon
 	void ThrowWeapon();
@@ -217,6 +224,8 @@ public:
 	FORCEINLINE UParticleSystem* GetMuzzleFlash() const { return MuzzleFlash; }
 
 	FORCEINLINE USoundCue* GetFireSound() const { return FireSound; }
+
+	FORCEINLINE bool GetAutomatic() const { return bAutomatic; }
 
 	// Weapon magazine currently full
 	bool ClipIsFull();
