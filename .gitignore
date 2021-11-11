@@ -58,6 +58,24 @@ Content/ParagonLtBelica/*
 Content/SpaceshipInterior/*
 Content/AnimStarterPack/*
 
+# Free meshes from the marketplace
+
+Content/A_Surf*
+Content/KiteDemo/*
+Content/Lighting/*
+Content/Paragon*
+Content/SampleMap/*
+Content/Audio/*
+Content/Blueprints/*
+Content/Fx/*
+Content/Maps/*
+Content/Materials/*
+Content/Meshes/*
+Content/Sequ*
+Content/Textures/*
+Content/StarterContent/*
+
+
 # Whitelist PakBlacklist-<BuildConfiguration>.txt files
 !Build/*/
 Build/*/**
