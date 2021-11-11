@@ -97,6 +97,8 @@ protected:
 	void StopFalling();	
 	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void BeginPlay() override;
+	void FinishMovingSlide();
+	void UpdateSlideDisplacement(float DeltaTime);
 
 private:
 	FTimerHandle ThrowWeaponTimer;
@@ -161,6 +163,32 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Data Table", meta = (AllowPrivateAccess = "true"))
 	FName BoneToHide;
 
+	// Amount that the slide is pushed back during pistol fire
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pistol", meta = (AllowPrivateAccess = "true"))
+	float SlideDisplacement;
+
+	// max distance for the slide on the pistol
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pistol", meta = (AllowPrivateAccess = "true"))
+	float MaxSlideDisplacement;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pistol", meta = (AllowPrivateAccess = "true"))
+	UCurveFloat* SlideDisplacementCurve;
+
+	// time for displacing the slide during pistol fire
+	FTimerHandle SlideTimer;
+	float SlideDisplacementTime;
+
+	// true when moving the pistol slide
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pistol", meta = (AllowPrivateAccess = "true"))
+	bool bMovingSlide;
+
+	// max rotation for pistol recoil
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pistol", meta = (AllowPrivateAccess = "true"))
+	float MaxRecoilRotation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pistol", meta = (AllowPrivateAccess = "true"))
+	float RecoilRotation;
+
 public:
 	// Add impulse to the weapon
 	void ThrowWeapon();
@@ -192,4 +220,6 @@ public:
 
 	// Weapon magazine currently full
 	bool ClipIsFull();
+
+	void StartSlideTimer();
 };
