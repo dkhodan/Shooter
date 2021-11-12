@@ -50,7 +50,7 @@ protected:
 	void TurnAtRate(float Rate);
 	void LookUpAtRate(float Rate);
 	void FireWeapon();
-	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation);
+	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FHitResult& OutBeamLocation);
 	void AimingButtonPressed();
 	void AimingButtonReleased();
 	void UpdateCameraFOV(float DeltaTime);

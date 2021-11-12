@@ -17,6 +17,7 @@
 #include "Weapon.h"
 #include "Ammo.h"
 #include "Shooter.h"
+#include "BulletHitInterface.h"
 
 
 AShooterCharacter::AShooterCharacter() :
@@ -195,19 +196,32 @@ void AShooterCharacter::SendBullet()
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
 		}
 
-		FVector BeamEnd;
-		if (GetBeamEndLocation(SocketTransform.GetLocation(), BeamEnd))
+		FHitResult BeamHitResult;
+		if (GetBeamEndLocation(SocketTransform.GetLocation(), BeamHitResult))
 		{
-			if (ImpactParticle)
+			// Does hit actor implement BulletHitInterface?
+			if (BeamHitResult.Actor.IsValid())
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, BeamEnd);
+				IBulletHitInterface* BulletHitInterface = Cast<IBulletHitInterface>(BeamHitResult.Actor.Get());
+
+				if (BulletHitInterface)
+				{
+					BulletHitInterface->BulletHit_Implementation(BeamHitResult);
+				}
+			}
+			else
+			{
+				if (ImpactParticle)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, BeamHitResult.Location);
+				}
 			}
 
 			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BeamParticle, SocketTransform);
 
 			if (Beam)
 			{
-				Beam->SetVectorParameter(FName("Target"), BeamEnd);
+				Beam->SetVectorParameter(FName("Target"), BeamHitResult.Location);
 			}
 		}
 	}
@@ -571,9 +585,10 @@ void AShooterCharacter::FireWeapon()
 	}
 }
 
-bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation)
+bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FHitResult& OutHitLocation)
 {
 	FHitResult CrosshairHitResult;
+	FVector OutBeamLocation;
 	bool bCrosshairHit = TraceUnderCrosshairs(CrosshairHitResult, OutBeamLocation);
 
 	if (bCrosshairHit)
@@ -581,20 +596,19 @@ bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, 
 		OutBeamLocation = CrosshairHitResult.Location;
 	}
 
-	FHitResult BarrelTraceHit;
 	const FVector Start = MuzzleSocketLocation;
 	const FVector StartToEnd = OutBeamLocation - MuzzleSocketLocation;
 	const FVector End = MuzzleSocketLocation + StartToEnd * 1.25f;
 
-	// Trace outward from crosshair world location
-	GetWorld()->LineTraceSingleByChannel(BarrelTraceHit, Start, End, ECollisionChannel::ECC_Visibility);
+	// Trace outward from crosshairs world location
+	GetWorld()->LineTraceSingleByChannel(OutHitLocation, Start, End, ECollisionChannel::ECC_Visibility);
 
-	if (BarrelTraceHit.bBlockingHit)
+	if (!OutHitLocation.bBlockingHit)
 	{
-		OutBeamLocation = BarrelTraceHit.Location;
-		return true;
+		OutHitLocation.Location = OutBeamLocation;
+		return false;
 	}
-	return false;
+	return true;
 }
 
 void AShooterCharacter::AimingButtonPressed()
