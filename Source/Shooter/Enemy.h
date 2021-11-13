@@ -56,6 +56,8 @@ protected:
 	UFUNCTION()
 	void DestroyHitNumber(UUserWidget* Widget);
 
+	void UpdateHitNumber();
+
 private:
 
 	// name of the head bone
@@ -98,7 +100,7 @@ public:
 	virtual void BulletHit_Implementation(FHitResult& HitResult) override;
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void ShowHitNumber(int32 Damage, FVector HitLocation);
+	void ShowHitNumber(int32 Damage, FVector HitLocation, bool bHeadshot);
 
 	FORCEINLINE FString GetHeadBoneName() const { return HeadBone; }
 };

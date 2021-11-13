@@ -77,11 +77,25 @@ void AEnemy::DestroyHitNumber(UUserWidget* Widget)
 	Widget->RemoveFromParent();
 }
 
+void AEnemy::UpdateHitNumber()
+{
+	for (auto& Hit : HitNumbers)
+	{
+		UUserWidget* HitNumber = Hit.Key;
+		const FVector Location = Hit.Value;
+		FVector2D ScreenPosition;
+
+		UGameplayStatics::ProjectWorldToScreen(GetWorld()->GetFirstPlayerController(), Location, ScreenPosition);
+		HitNumber->SetPositionInViewport(ScreenPosition);
+	}
+}
+
 // Called every frame
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	UpdateHitNumber();
 }
 
 float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
