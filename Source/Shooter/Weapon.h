@@ -85,6 +85,12 @@ struct FWeaponDataTable : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bAutomatic;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float HeadshotDamage;
 };
 
 UCLASS()
@@ -196,6 +202,13 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	bool bAutomatic;
 
+	// amount of damage caused by a bullet
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	float Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	float HeadshotDamage;
+
 public:
 	// Add impulse to the weapon
 	void ThrowWeapon();
@@ -226,6 +239,10 @@ public:
 	FORCEINLINE USoundCue* GetFireSound() const { return FireSound; }
 
 	FORCEINLINE bool GetAutomatic() const { return bAutomatic; }
+
+	FORCEINLINE float GetDamage() const { return Damage; }
+
+	FORCEINLINE float GetHeadshotDamage() const { return HeadshotDamage; }
 
 	// Weapon magazine currently full
 	bool ClipIsFull();

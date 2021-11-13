@@ -15,6 +15,7 @@
 #include "Components/SphereComponent.h"
 #include "ItemActor.h"
 #include "Weapon.h"
+#include "Enemy.h"
 #include "Ammo.h"
 #include "Shooter.h"
 #include "BulletHitInterface.h"
@@ -207,6 +208,25 @@ void AShooterCharacter::SendBullet()
 				if (BulletHitInterface)
 				{
 					BulletHitInterface->BulletHit_Implementation(BeamHitResult);
+				}
+
+				AEnemy* HitEnemy = Cast<AEnemy>(BeamHitResult.Actor.Get());
+				int32 Damage = 0;
+				if (HitEnemy)
+				{
+					// headshot
+					if (BeamHitResult.BoneName.ToString() == HitEnemy->GetHeadBoneName())
+					{
+						Damage = EquippedWeapon->GetHeadshotDamage();
+						UGameplayStatics::ApplyDamage(HitEnemy, Damage, GetController(), this, UDamageType::StaticClass());
+					}
+					// bodyshot
+					else
+					{
+						Damage = EquippedWeapon->GetDamage();
+						UGameplayStatics::ApplyDamage(HitEnemy, Damage, GetController(), this, UDamageType::StaticClass());
+					}
+					HitEnemy->ShowHitNumber(Damage, BeamHitResult.Location);
 				}
 			}
 			else

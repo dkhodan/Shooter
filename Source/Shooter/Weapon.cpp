@@ -138,6 +138,10 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 		MaterialIndex = WeaponDataRow->MaterialIndex;
 
 		bAutomatic = WeaponDataRow->bAutomatic;
+		
+		// damage
+		Damage = WeaponDataRow->Damage;
+		HeadshotDamage = WeaponDataRow->HeadshotDamage;
 	}
 
 	if (MaterialInstance)
