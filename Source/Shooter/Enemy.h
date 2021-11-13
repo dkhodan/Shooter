@@ -90,6 +90,15 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	float HitNumberDestroyTime;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behaviour Tree", meta = (AllowPrivateAccess = "true"))
+	class UBehaviorTree* BehaviourTree;
+
+	// point for the enemy to move to
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behaviour Tree", meta = (AllowPrivateAccess = "true", MakeEditWidget = "true"))
+	FVector PatrolPoint;
+
+	class AEnemyController* EnemyController;
+
 public:	
 	virtual void Tick(float DeltaTime) override;
 
@@ -103,4 +112,6 @@ public:
 	void ShowHitNumber(int32 Damage, FVector HitLocation, bool bHeadshot);
 
 	FORCEINLINE FString GetHeadBoneName() const { return HeadBone; }
+
+	FORCEINLINE UBehaviorTree* GetBehaviourTree() const { return BehaviourTree; }
 };

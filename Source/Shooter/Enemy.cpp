@@ -3,6 +3,10 @@
 #include "Sound/SoundCue.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "DrawDebugHelpers.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "EnemyController.h"
 
 AEnemy::AEnemy() :
 	Health(100.f),
@@ -23,6 +27,18 @@ void AEnemy::BeginPlay()
 	Super::BeginPlay();
 	
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+
+	// get the AI controller
+	EnemyController = Cast<AEnemyController>(GetController());
+
+	const FVector WorldPatrolPoint = UKismetMathLibrary::TransformLocation(GetActorTransform(), PatrolPoint);
+	DrawDebugSphere(GetWorld(), WorldPatrolPoint, 25.f, 12, FColor::Red, true);
+
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsVector("PatrolPoint", WorldPatrolPoint);
+		EnemyController->RunBehaviorTree(BehaviourTree);
+	}
 }
 
 void AEnemy::ShowHealthBar_Implementation()
