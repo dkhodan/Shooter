@@ -38,6 +38,21 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void StoreHitNumber(UUserWidget* HitNumber, FVector Location);
 
+	// activate - deactivate collision boxes
+	UFUNCTION(BlueprintCallable)
+	void ActiveLeftWeaponCollision();
+
+	UFUNCTION(BlueprintCallable)
+	void DeactiveLeftWeaponCollision();
+
+	UFUNCTION(BlueprintCallable)
+	void ActiveRightWeaponCollision();
+
+	UFUNCTION(BlueprintCallable)
+	void DeactivateRightWeaponCollision();
+
+	void DoDamage(AActor* Victim);
+
 protected:
 
 	// particle to spawn when hit by bullets
@@ -73,6 +88,12 @@ protected:
 
 	UFUNCTION()
 	void CombatRangeEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex);
+
+	UFUNCTION()
+	void OnLeftWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnRightWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 
 private:
@@ -143,6 +164,15 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* CombatRangeSphere;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class UBoxComponent* LeftWeaponCollision;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UBoxComponent* RightWeaponCollision;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float BaseDamage;
 
 public:	
 	virtual void Tick(float DeltaTime) override;

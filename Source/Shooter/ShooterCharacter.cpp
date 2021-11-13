@@ -68,10 +68,16 @@ AShooterCharacter::AShooterCharacter() :
 	EquipSoundResetTime(0.2f),
 
 	// Icon animation property
-	HighlightedSlot(-1)
+	HighlightedSlot(-1),
+
+	// health
+	Health(100.f),
+	MaxHealth(100.f)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	SetCanBeDamaged(true);
 
 	// Create CameraBoom (pulls in towards the character)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -85,7 +91,7 @@ AShooterCharacter::AShooterCharacter() :
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
-	// Dont rotate character when rotate camera
+	// Don't rotate character when rotate camera
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
@@ -121,6 +127,20 @@ AShooterCharacter::AShooterCharacter() :
 	IterpComp6->SetupAttachment(GetFollowCamera());
 }
 
+
+	float AShooterCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+	{
+		if (Health - DamageAmount <= 0.f)
+		{
+			Health = 0.f;
+		}
+		else
+		{
+			Health -= DamageAmount;
+		}
+
+		return DamageAmount;
+	}
 
 void AShooterCharacter::BeginPlay()
 {

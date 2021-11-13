@@ -42,6 +42,9 @@ class SHOOTER_API AShooterCharacter : public ACharacter
 public:
 	AShooterCharacter();
 
+	// take combat damage
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -398,6 +401,16 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items", meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* EquipMontage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float Health;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	float MaxHealth;
+
+	// sound made when character gets hits by melee attacks
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class USoundCue* MeleeImpactSound;
+
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
@@ -410,6 +423,8 @@ public:
 	FORCEINLINE bool IsCrouching() const { return bCrouching; }
 
 	FORCEINLINE AWeapon* GetEquippedWeapon() const { return EquippedWeapon; }
+
+	FORCEINLINE USoundCue* GetMeleeImpactSound() const { return MeleeImpactSound; }
 
 	FInterpLocation GetInterpLocationByIndex(int32 Index);
 
