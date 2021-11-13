@@ -30,6 +30,9 @@ protected:
 
 	void PlayHitMontage(FName MontageSection, float PlayRate = 1.f);
 
+	UFUNCTION(BlueprintCallable)
+	void PlayAttackMontage(FName MontageSection, float PlayRate = 1.f);
+
 	void ResetHitReactTimer();
 
 	UFUNCTION(BlueprintCallable)
@@ -58,6 +61,20 @@ protected:
 
 	void UpdateHitNumber();
 
+	// called when something overlap with agro sphere
+	UFUNCTION()
+	void AgroSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintCallable)
+	void SetStunned(bool bStunned);
+
+	UFUNCTION()
+	void CombatRangeOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void CombatRangeEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex);
+
+
 private:
 
 	// name of the head bone
@@ -71,6 +88,14 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* HitMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* AttackMontage;
+
+	FName AttackLFast;
+	FName AttackL;
+	FName AttackRFast;
+	FName AttackR;
 
 	FTimerHandle HitReactTimer;
 
@@ -97,7 +122,27 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behaviour Tree", meta = (AllowPrivateAccess = "true", MakeEditWidget = "true"))
 	FVector PatrolPoint;
 
+	// second patrol point
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behaviour Tree", meta = (AllowPrivateAccess = "true", MakeEditWidget = "true"))
+	FVector PatrolPoint2;
+
 	class AEnemyController* EnemyController;
+
+	// overlap sphere for when the enemy become hostile
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class USphereComponent* AgroSphere;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	bool bStunned;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float StunChance;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	bool bInAttackRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class USphereComponent* CombatRangeSphere;
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -107,6 +152,9 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void BulletHit_Implementation(FHitResult& HitResult) override;
+
+	UFUNCTION(BlueprintPure)
+	FName GetAttackSectionName();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowHitNumber(int32 Damage, FVector HitLocation, bool bHeadshot);
