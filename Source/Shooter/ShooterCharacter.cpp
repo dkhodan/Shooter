@@ -10,12 +10,14 @@
 #include "Components/CapsuleComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Math/UnrealMathUtility.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "ItemActor.h"
 #include "Weapon.h"
 #include "Enemy.h"
+#include "EnemyController.h"
 #include "Ammo.h"
 #include "Shooter.h"
 #include "BulletHitInterface.h"
@@ -135,6 +137,15 @@ AShooterCharacter::AShooterCharacter() :
 		if (Health - DamageAmount <= 0.f)
 		{
 			Health = 0.f;
+
+			AEnemyController* EnemyController = Cast<AEnemyController>(EventInstigator);
+			
+			if (EnemyController)
+			{
+				EnemyController->GetBlackboardComponent()->SetValueAsBool("CharacterDead", true);
+			}
+
+			Die();
 		}
 		else
 		{
@@ -563,6 +574,32 @@ void AShooterCharacter::EndStun()
 	CombatState = ECombatState::ECS_Unoccupied;
 
 	if (bAimingButtonPressed) Aim();
+}
+
+void AShooterCharacter::Die()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	if (AnimInstance && DeathMontage)
+	{
+		AnimInstance->Montage_Play(DeathMontage);
+	}
+}
+
+void AShooterCharacter::FinishDeath()
+{
+	GetMesh()->bPauseAnims = true;
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+
+	if (PC) DisableInput(PC);
+}
+
+void AShooterCharacter::DisableMovs()
+{
+	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+
+	if (PC) DisableInput(PC);
 }
 
 void AShooterCharacter::UnhighlightInventorySlot()
@@ -1193,6 +1230,8 @@ void AShooterCharacter::StartEquipSoundTimer()
 
 void AShooterCharacter::Stun()
 {
+	if (Health <= 0.f) return;
+
 	CombatState = ECombatState::ECS_Stunned;
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();

@@ -33,7 +33,8 @@ AEnemy::AEnemy() :
 	RightWeaponSocket(TEXT("FX_Trail_R_01")),
 	bCanAttack(true),
 	AttackWaitTime(1.f),
-	bDying(false)
+	bDying(false),
+	DeathTime(4.f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -336,7 +337,8 @@ void AEnemy::OnRightWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 
 void AEnemy::FinishDeath()
 {
-	Destroy();
+	GetMesh()->bPauseAnims = true;
+	GetWorldTimerManager().SetTimer(DeathTimer, this, &AEnemy::DestroyEnemy, DeathTime);
 }
 
 void AEnemy::StunCharacter(AShooterCharacter* Victim)
@@ -347,6 +349,12 @@ void AEnemy::StunCharacter(AShooterCharacter* Victim)
 	{
 		Victim->Stun();
 	}
+}
+
+UFUNCTION()
+void AEnemy::DestroyEnemy()
+{
+	Destroy();
 }
 
 // Called every frame
@@ -411,6 +419,8 @@ void AEnemy::BulletHit_Implementation(FHitResult& HitResult)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, HitResult.Location, FRotator(0.f), true);
 	}
+
+	if (bDying) return;
 
 	ShowHealthBar();
 

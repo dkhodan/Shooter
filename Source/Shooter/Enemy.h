@@ -103,6 +103,8 @@ protected:
 	void FinishDeath();
 
 	void StunCharacter(AShooterCharacter* Victim);
+
+	void DestroyEnemy();
 private:
 
 	// name of the head bone
@@ -198,8 +200,11 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* DeathMontage;
 
-
 	bool bDying;
+
+	// keep enemy after death for a few seconds
+	FTimerHandle DeathTimer;
+	float DeathTime;
 
 public:	
 	virtual void Tick(float DeltaTime) override;
