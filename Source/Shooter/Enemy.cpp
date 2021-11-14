@@ -30,7 +30,9 @@ AEnemy::AEnemy() :
 	AttackR(TEXT("AttackR")),
 	BaseDamage(20.f),
 	LeftWeaponSocket(TEXT("FX_Trail_L_01")),
-	RightWeaponSocket(TEXT("FX_Trail_R_01"))
+	RightWeaponSocket(TEXT("FX_Trail_R_01")),
+	bCanAttack(true),
+	AttackWaitTime(1.f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -91,6 +93,7 @@ void AEnemy::BeginPlay()
 	{
 		EnemyController->GetBlackboardComponent()->SetValueAsVector("PatrolPoint", WorldPatrolPoint);
 		EnemyController->GetBlackboardComponent()->SetValueAsVector("PatrolPoint2", WorldPatrolPoint2);
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(FName("CanAttack"), true);
 		EnemyController->RunBehaviorTree(BehaviourTree);
 	}
 }
@@ -131,6 +134,13 @@ void AEnemy::PlayAttackMontage(FName MontageSection, float PlayRate /*= 1.f*/)
 	{
 		AnimInstance->Montage_Play(AttackMontage, PlayRate);
 		AnimInstance->Montage_JumpToSection(MontageSection, AttackMontage);
+	}
+	bCanAttack = false;
+	GetWorldTimerManager().SetTimer(AttackWaitTimer, this, &AEnemy::ResetCanAttack, AttackWaitTime);
+
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(FName("CanAttack"), false);
 	}
 }
 
@@ -195,6 +205,16 @@ void AEnemy::SpawnBlood(AShooterCharacter* Victim, FName SocketName)
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Particle, SocketTransform);
 		}
+	}
+}
+
+void AEnemy::ResetCanAttack()
+{
+	bCanAttack = true;
+
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(FName("CanAttack"), true);
 	}
 }
 
@@ -316,6 +336,11 @@ void AEnemy::Tick(float DeltaTime)
 
 float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsObject(FName("Target"), DamageCauser);
+	}
+
 	if (Health - DamageAmount <= 0)
 	{
 		Health = 0;

@@ -55,6 +55,8 @@ protected:
 
 	void SpawnBlood(AShooterCharacter* Victim, FName SocketName);
 
+	void ResetCanAttack();
+
 protected:
 
 	// particle to spawn when hit by bullets
@@ -181,6 +183,14 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	FName RightWeaponSocket;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	bool bCanAttack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float AttackWaitTime;
+
+	FTimerHandle AttackWaitTimer;
 
 public:	
 	virtual void Tick(float DeltaTime) override;
