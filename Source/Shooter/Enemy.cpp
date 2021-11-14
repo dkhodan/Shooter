@@ -9,7 +9,9 @@
 #include "Components/SphereComponent.h"
 #include "ShooterCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "EnemyController.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "Components/BoxComponent.h"
 
 AEnemy::AEnemy() :
@@ -26,7 +28,9 @@ AEnemy::AEnemy() :
 	AttackL(TEXT("AttackL")),
 	AttackRFast(TEXT("AttackRFast")),
 	AttackR(TEXT("AttackR")),
-	BaseDamage(20.f)
+	BaseDamage(20.f),
+	LeftWeaponSocket(TEXT("FX_Trail_L_01")),
+	RightWeaponSocket(TEXT("FX_Trail_R_01"))
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -168,19 +172,28 @@ void AEnemy::DeactivateRightWeaponCollision()
 	RightWeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
-void AEnemy::DoDamage(AActor* Victim)
+void AEnemy::DoDamage(AShooterCharacter* Character)
 {
-	if (!Victim) return;
+	if (!Character) return;
 
-	auto Character = Cast<AShooterCharacter>(Victim);
+	UGameplayStatics::ApplyDamage(Character, BaseDamage, EnemyController, this, UDamageType::StaticClass());
 
-	if (Character)
+	if (auto Sound = Character->GetMeleeImpactSound())
 	{
-		UGameplayStatics::ApplyDamage(Character, BaseDamage, EnemyController, this, UDamageType::StaticClass());
+		UGameplayStatics::PlaySoundAtLocation(this, Sound, Character->GetActorLocation());
+	}
+}
 
-		if (auto Sound = Character->GetMeleeImpactSound())
+void AEnemy::SpawnBlood(AShooterCharacter* Victim, FName SocketName)
+{
+	const USkeletalMeshSocket* TipSocket = GetMesh()->GetSocketByName(SocketName);
+
+	if (TipSocket)
+	{
+		const FTransform SocketTransform = TipSocket->GetSocketTransform(GetMesh());
+		if (auto Particle = Victim->GetBloodParticle())
 		{
-			UGameplayStatics::PlaySoundAtLocation(this, Sound, Character->GetActorLocation());
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Particle, SocketTransform);
 		}
 	}
 }
@@ -261,12 +274,36 @@ void AEnemy::CombatRangeEndOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 
 void AEnemy::OnLeftWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	DoDamage(OtherActor);
+	if (!OtherActor) return;
+
+	if (auto Character = Cast<AShooterCharacter>(OtherActor))
+	{
+		DoDamage(Character);
+		SpawnBlood(Character, LeftWeaponSocket);
+		StunCharacter(Character);
+	}
 }
 
 void AEnemy::OnRightWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	DoDamage(OtherActor);
+	if (!OtherActor) return;
+
+	if (auto Character = Cast<AShooterCharacter>(OtherActor))
+	{
+		DoDamage(Character);
+		SpawnBlood(Character, RightWeaponSocket);
+		StunCharacter(Character);
+	}
+}
+
+void AEnemy::StunCharacter(AShooterCharacter* Victim)
+{
+	const float StunPercent = FMath::FRandRange(0, 1);
+
+	if (StunPercent <= Victim->GetStunChance())
+	{
+		Victim->Stun();
+	}
 }
 
 // Called every frame

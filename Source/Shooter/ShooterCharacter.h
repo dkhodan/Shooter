@@ -16,6 +16,7 @@ enum class ECombatState : uint8
 	ECS_FireTimerInProgress UMETA(DisplayName = "FireTimerInProgress"),
 	ECS_Reloading UMETA(DisplayName = "Reloading"),
 	ECS_Equipping UMETA(DisplayName = "Equipping"),
+	ECS_Stunned UMETA(DisplayName = "Stunned"),
 
 	ECS_MAX UMETA(DisplayName = "Default MAX")
 };
@@ -153,6 +154,9 @@ protected:
 	
 	UFUNCTION(BlueprintCallable)
 	EPhysicalSurface GetSurfaceType();
+
+	UFUNCTION(BlueprintCallable)
+	void EndStun();
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -411,6 +415,16 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	class USoundCue* MeleeImpactSound;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* BloodParticle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* HitReactMontage;
+
+	// chance of being stunned when hit by an enemy
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float StunChance;
+
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
@@ -426,10 +440,15 @@ public:
 
 	FORCEINLINE USoundCue* GetMeleeImpactSound() const { return MeleeImpactSound; }
 
+	FORCEINLINE UAnimMontage* GetStunMontage() const { return HitReactMontage; }
+
+	FORCEINLINE UParticleSystem* GetBloodParticle() const { return BloodParticle; }
+
 	FInterpLocation GetInterpLocationByIndex(int32 Index);
 
 	FORCEINLINE bool ShouldPlayPickUpSound() const { return bShouldPlayPickupSound; }
 	FORCEINLINE bool ShouldPLayEquipSound() const { return bShouldPlayEquipSound; }
+	FORCEINLINE float GetStunChance() const { return StunChance; }
 
 	UFUNCTION(BlueprintCallable)
 	float GetCrosshairSpreadMultiplier() const;
@@ -448,4 +467,6 @@ public:
 
 	void StartPickSoundTime();
 	void StartEquipSoundTimer();
+
+	void Stun();
 };

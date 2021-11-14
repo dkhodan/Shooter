@@ -51,7 +51,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void DeactivateRightWeaponCollision();
 
-	void DoDamage(AActor* Victim);
+	void DoDamage(class AShooterCharacter* Character);
+
+	void SpawnBlood(AShooterCharacter* Victim, FName SocketName);
 
 protected:
 
@@ -95,7 +97,7 @@ protected:
 	UFUNCTION()
 	void OnRightWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-
+	void StunCharacter(AShooterCharacter* Victim);
 private:
 
 	// name of the head bone
@@ -173,6 +175,12 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	float BaseDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	FName LeftWeaponSocket;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	FName RightWeaponSocket;
 
 public:	
 	virtual void Tick(float DeltaTime) override;
