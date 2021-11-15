@@ -204,6 +204,8 @@ private:
 
 	// keep enemy after death for a few seconds
 	FTimerHandle DeathTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	float DeathTime;
 
 public:	
