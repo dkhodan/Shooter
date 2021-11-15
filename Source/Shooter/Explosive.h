@@ -23,8 +23,16 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	class USoundCue* ExplodeSound;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class USphereComponent* OverlapSphere;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class UStaticMeshComponent* ExplosiveMesh;
+
+	float Damage;
+
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void BulletHit_Implementation(FHitResult& HitResult) override;
+	virtual void BulletHit_Implementation(FHitResult& HitResult, AActor* Shooter, AController* Instigator) override;
 };
